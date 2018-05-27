@@ -6,7 +6,7 @@
 /*   By: tkiselev <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/03/21 16:40:11 by tkiselev          #+#    #+#             */
-/*   Updated: 2018/05/26 20:15:42 by tkiselev         ###   ########.fr       */
+/*   Updated: 2018/05/27 14:54:53 by tkiselev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,4 +109,5 @@ void				ft_btree_apply_postfix(t_btree *root, void (*f)(void *));
 # define BUFF_SIZE 10000
 
 int					get_next_line(const int fd, char **line);
+void				ft_list_pushback(t_list **head, char *line);
 #endif
