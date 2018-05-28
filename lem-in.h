@@ -1,13 +1,16 @@
 #ifndef LEM_IN_H
 # define LEM_IN_H
 
-# define INV_FILE 1
-# define INV_ANTS 2
-# define LINK_BEFORE_ROOM 3
-# define WTF 4
-# define SEVERAL_STARTS 5
-# define SEVERAL_ENDS 6
-# define NOT_A_ROOM 7
+# include "libft.h"
+# define START 1
+# define END 2
+# define ERROR_HZ -1
+# define ERROR_INVALID_FILE 3
+# define ERROR_INVALID_QUANTITY_OF_ANTS 4
+# define ERROR_WITH_ROOM 5
+# define ERROR_NOT_UNIQUE_ROOM 6
+# define ERROR_S_START 7
+# define ERROR_S_END 8
 
 typedef	struct		s_ant
 {
@@ -16,24 +19,25 @@ typedef	struct		s_ant
 	struct s_ant	*next;
 }					t_ant;
 
-typedef struct		s_alist
+typedef struct		s_link
 {
 	void			*link;
 	struct s_alist	*next;
-}					t_alist;
+}					t_link;
 
 typedef struct		s_room
 {
-	char			flags : 2;
+	int				x;
+	int				y;
+	char			priority;
 	char			*name;
-	t_alist			*neighbour;
+	t_link			*sibling;
 	struct s_room	*next;
 }					t_room;
 
 typedef struct
 {
-	int				ants;
-	int				rooms_counter;
+	int				ants_counter;
 	t_list			*line_list;
 	t_ant			*ant;
 	t_room			*room;

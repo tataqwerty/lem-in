@@ -1,10 +1,8 @@
-#include <stdio.h>
-#include "libft.h"
 #include "lem-in.h"
 
-void		listdel(t_list **head)
+void	line_list_del(t_list **head)
 {
-	t_list	*tmp;
+	t_list *tmp;
 
 	if (!head || !*head)
 		return ;
@@ -15,216 +13,276 @@ void		listdel(t_list **head)
 		free(*head);
 		*head = tmp;
 	}
-	*head = NULL;
 }
 
-void		roomsdel(t_room *room)
-{
+// void	room_list_del(t_room **room)
+// {
 
-}
+// }
 
-//////////////////
-void		ft_puterror(char *str)
+void	error_management(char error)
 {
 	ft_putstr("Error: ");
-	ft_putstr(str);
+	if (error == ERROR_INVALID_FILE)
+		ft_putstr("invalid file.\n");
+	else if (error == ERROR_INVALID_QUANTITY_OF_ANTS)
+		ft_putstr("invalid quantity of ants.\n");
+	else if (error == ERROR_HZ)
+		ft_putstr("undefined error.\n");
+	else if (error == ERROR_WITH_ROOM)
+		ft_putstr("not valid room.\n");
+	else if (error == ERROR_NOT_UNIQUE_ROOM)
+		ft_putstr("not unique room.\n");
+	else if (error == ERROR_S_START)
+		ft_putstr("several starts.\n");
+	else if (error == ERROR_S_END)
+		ft_putstr("several ends.\n");
 }
 
-void		error_management(char error)
-{
-	if (error == INV_FILE)
-		ft_puterror("Invalid file.\n");
-	else if (error == INV_ANTS)
-		ft_puterror("Invalid quantity of ants.\n");
-	else if (error == LINK_BEFORE_ROOM)
-		ft_puterror("No room yet.\n");
-	else if (error == WTF)
-		ft_puterror("wtf?.\n");
-	
-}
-//////// Вместо этой хуйни макрос зафигачить.
-
-void		get_all_lines(t_list **head)
+void	lines_to_list(t_str *s)
 {
 	char	*line;
 
 	line = NULL;
+	s->line_list = NULL;
 	while (get_next_line(0, &line) > 0)
 	{
-		ft_list_pushback(head, line);
+		ft_list_pushback(&s->line_list, line);
 		free(line);
 	}
 }
 
-char		get_counter_ants(t_list **list)
+char		get_ants_counter(int *ants, t_list **list)
 {
+	char	*str;
 	int		i;
 
 	i = 0;
-	if (!list || !*list || (*list)->content_size == 0)
-		return (INV_FILE); // Invalid file.
-	while (((char*)(*list)->content)[i] >= '0' && ((char*)(*list)->content)[i] <= '9')
-		s->rooms_counter = s->rooms_counter * 10 + ((char*)(*list)->content)[i++] - 48;
-	if (s->rooms_counter == 0 || ((char*)(*list)->content)[i] != '\0')
-		return (INV_ANTS); // Invalid quantity of ants.
+	if (!list || !*list || !(*list)->content)
+		return (ERROR_INVALID_FILE);
+	str = (*list)->content;
+	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9')
+		*ants = *ants * 10 + str[i++] - 48;
+	if (i == 0 || *ants == 0 || str[i] != '\0')
+		return (ERROR_INVALID_QUANTITY_OF_ANTS);
 	*list = (*list)->next;
 	return (0);
 }
 
-char		is_command(char *str)
+char	is_room(char *str)
 {
-	if (ft_strcmp(str, "##start") == 0 || ft_strcmp(str, "##end") == 0)
+	char	flag;
+	int		i;
+
+	if (!str || str[0] == 'L' || str[0] == '#')
+		return (0);
+	flag = 0;
+	i = 0;
+	while (str[i] != '\0' && str[i] > 32 && str[i] < 127 && str[i] != '-' && i++)
+		flag = 1;
+	if (flag == 0 || str[i++] != ' ')
+		return (0);
+	flag = 0;
+	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9' && i++)
+		flag = 1;
+	if (flag == 0 || str[i++] != ' ')
+		return (0);
+	flag = 0;
+	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9' && i++)
+		flag = 1;
+	if (flag == 0 || str[i] != '\0')
+		return (0);
+	return (1);
+}
+
+char	is_command(char *str)
+{
+	if (ft_strequ(str, "##start") || ft_strequ(str, "##end"))
 		return (1);
 	return (0);
 }
 
-char		is_room(char *str)
-{
-	char	flag;
-	int		i;
-
-	i = 0;
-	if (!str || str[0] == 'L' || str[i] == '#')
-		return (0);
-	flag = 0;
-	while (str[i] != '-' && str[i] > 32 && str[i] < 127 && i++)
-		flag = 1;
-	if (flag == 0 || str[i++] != ' ')
-		return (0);
-	flag = 0;
-	while (str[i] >= '0' && str[i] <= '9' && i++)
-		flag = 1;
-	if (flag == 0 || str[i++] != ' ')
-		return (0);
-	flag = 0;
-	while (str[i] >= '0' && str[i] <= '9' && i++)
-		flag = 1;
-	if (flag == 0 || str[i] != '\0')
-		return (0);
-	return (1);
-}
-
-char		is_link(char *str)
+char	is_link(char *s)
 {
 	int		i;
 	char	flag;
 
-	flag = 0;
+	if (!s || s[0] == 'L' || s[0] == '#')
+		return (0);
 	i = 0;
-	if (!str)
-		return (0);
-	while (str[i] != '-' && str[i] > 32 && str[i] < 127 && i++)
+	flag = 0;
+	while (s[i] > 32 && s[i] < 127 && s[i] != '-' && i++)
 		flag = 1;
-	if (flag == 0 || str[i++] != '-')
+	if (flag == 0 || s[i++] != '-' || s[i] == 'L' || s[i] == '#')
 		return (0);
-	while (str[i] != '-' && str[i] > 32 && str[i] < 127 && i++)
+	flag = 0;
+	while (s[i] > 32 && s[i] < 127 && s[i] != '-' && i++)
 		flag = 1;
-	if (flag == 0 || str[i] != '\0')
+	if (flag == 0 || s[i] != '\0')
 		return (0);
 	return (1);
 }
 
-char		add_room(char *str, int priority)
+void	room_push_front(t_room **room, char **arr, char priority)
 {
-	
+	t_room	*new;
+
+	new = (t_room*)malloc(sizeof(t_room));
+	new->x = ft_atoi(arr[1]);
+	new->y = ft_atoi(arr[2]);
+	new->name = ft_strdup(arr[0]);
+	new->priority = priority;
+	new->next = NULL;
+	new->sibling = NULL;
+	if (!*room)
+		*room = new;
+	else
+	{
+		new->next = *room;
+		*room = new;
+	}
 }
 
-char		ft_for_command(t_list **list, char *flag)
+void	room_push_back(t_room **room, char **arr, char priority)
 {
-	char	error;
+	t_room	*tmp;
+	t_room	*new;
 
-	if (ft_strcmp((*list)->content, "##start") == 0)
+	tmp = *room;
+	while (tmp)
 	{
-		if ((*flag) & 1 == 1)
-			return (SEVERAL_STARTS);
-		*flag = (*flag) | 1;
-		if (!(*list = (*list)->next) || !is_room((*list)->content))
-			return (NOT_A_ROOM);
-		else if ((error = add_room((*list)->content, 1)) != 0)
-			return (error);
+		if (tmp->next)
+			tmp = tmp->next;
+		else
+			break ;
 	}
-	else if (ft_strcmp((*list)->content, "##end") == 0)
+	new = (t_room*)malloc(sizeof(t_room));
+	new->x = ft_atoi(arr[1]);
+	new->y = ft_atoi(arr[2]);
+	new->name = ft_strdup(arr[0]);
+	new->priority = priority;
+	new->next = NULL;
+	new->sibling = NULL;
+	if (!tmp)
+		*room = new;
+	else
+		tmp->next = new;
+}
+
+char	add_room(t_room **room, char *str, char priority)
+{
+	t_room	*tmp;
+	char	**arr;
+	int		x;
+	int		y;
+
+	tmp = *room;
+	arr = ft_strsplit(str, ' ');
+	x = ft_atoi(arr[1]);
+	y = ft_atoi(arr[2]);
+	while (tmp)
 	{
-		if ((*flag) & 2 == 2)
-			return (SEVERAL_ENDS);
-		*flag = (*flag) | 2;
-		if (!(*list = (*list)->next) || !is_room((*list)->content))
-			return (NOT_A_ROOM);
-		else if ((error = add_room((*list)->content, 2)) != 0)
-			return (error);
+		if (tmp->name == arr[0] || (tmp->x == x && tmp->y == y))
+			return (ERROR_NOT_UNIQUE_ROOM);
+		else if (priority > 0 && priority == tmp->priority)
+			return (priority == START ? ERROR_S_START : ERROR_S_END);
+		tmp = tmp->next;
 	}
+	if ((y = -1) && priority == START)
+		room_push_front(room, arr, priority);
+	else
+		room_push_back(room, arr, priority);
+	while (arr[++y])
+		free(arr[y]);
+	free(arr);
 	return (0);
 }
 
-char		get_rooms(t_str *s, t_list **list)
+char	add_room_with_command(t_room **room, t_list **list)
 {
-	char	flag;
+	if (ft_strequ((*list)->content, "##start"))
+	{
+		if (!(*list = (*list)->next) || !is_room((*list)->content))
+			return (ERROR_WITH_ROOM);
+		else
+			return (add_room(room, (*list)->content, START));
+	}
+	else
+	{
+		if (!(*list = (*list)->next) || !is_room((*list)->content))
+			return (ERROR_WITH_ROOM);
+		else
+			return (add_room(room, (*list)->content, END));
+	}
+	return (ERROR_HZ);
+}
+
+char	get_rooms(t_str *s, t_list **list)
+{
 	char	error;
 
-	flag = 0;
 	while (*list)
 	{
-		if (is_command((*list)->content))
-			if ((error = ft_for_command(list, &flag)) != 0)
+		if (is_room((*list)->content))
+		{
+			if ((error = add_room(&s->room, (*list)->content, 0)) != 0)
 				return (error);
-		else if (is_room((*list)->content))
-			if ((error = add_room((*list)->content, 0)) != 0)
+		}
+		else if (is_command((*list)->content))
+		{
+			if ((error = add_room_with_command(&s->room, list)) != 0)
 				return (error);
+		}
 		else if (is_link((*list)->content))
-			if (flag & 4 == 0) // линк перед комнатой.
-				return (LINK_BEFORE_ROOM);
-			else
-				return (0);
-		else if ((*list)->content[0] != '#')
-			return (WTF); // ХЗ что за херня.
+			return (0);
+		else if (((char*)(*list)->content)[0] != '#')
+			return (ERROR_INVALID_FILE);
 		*list = (*list)->next;
 	}
-	return (0);
+	return (ERROR_INVALID_FILE);
 }
 
-char		get_links(t_str *s, t_list **list)
-{
-	// накостылить, чтоб брался первый линк.
+// char	get_links(t_str *s, t_list **list)
+// {
 
-}
+// }
 
-char		parsing(t_str *s)
+char	parsing(t_str *s)
 {
+	t_list	*tmp;
 	char	error;
-	t_list	*list;
 
-	s->line_list = NULL;
-	s->rooms_counter = 0;
+	s->ants_counter = 0;
 	s->room = NULL;
-	get_all_lines(&s->line_list);
-	list = s->line_list;
-	if ((error = get_counter_ants(&list)) != 0)
+	s->ant = NULL;
+	lines_to_list(s);
+	tmp = s->line_list;
+	if ((error = get_ants_counter(&s->ants_counter, &tmp)) != 0)
 	{
 		error_management(error);
-		listdel(&s->line_list);
+		line_list_del(&s->line_list);
 		return (0);
 	}
-	if ((error = get_rooms(s, &list)) != 0 || (error = get_links(s, &list)) != 0)
+	if ((error = get_rooms(s, &tmp)) != 0) // Добавить get_links.
 	{
 		error_management(error);
-		listdel(&s->line_list);
-		if (s->room)
-			delrooms(&s->room);
+		line_list_del(&s->line_list);
+		// if (s->room)
+		// 	room_list_del(&s->room);
 		return (0);
 	}
 	return (1);
 }
 
-int			main(void)
+int		main(void)
 {
-	t_str	*s;
+	t_str *s;
 
-	if (!(s = (t_str*)malloc(sizeof(t_str))))
-		return (0);
+	s = (t_str*)malloc(sizeof(t_str));
 	if (!parsing(s))
 	{
 		free(s);
 		return (0);
 	}
-	return (0);
+	return 0;
 }
