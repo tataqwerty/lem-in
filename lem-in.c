@@ -366,7 +366,8 @@ char		parsing(t_str *s)
 	{
 		error_management(error);
 		line_list_del(&s->line_list);
-	
+		// if (s->room)
+		// 	roomsdel(&s->room);
 		return (0);
 	}
 	return (1);
