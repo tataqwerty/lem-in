@@ -37,6 +37,12 @@ void	error_management(char error)
 		ft_putstr("several starts.\n");
 	else if (error == ERROR_S_END)
 		ft_putstr("several ends.\n");
+	else if (error == ERROR_NOT_ENOUGH_INFO)
+		ft_putstr("not enough information.\n");
+	else if (error == ERROR_NOT_UNIQUE_LINK)
+		ft_putstr("not unique link.\n");
+	else if (error == ERROR_INVALID_LINK)
+		ft_putstr("invalid link.\n");
 }
 
 void	lines_to_list(t_str *s)
@@ -78,18 +84,18 @@ char	is_room(char *str)
 		return (0);
 	flag = 0;
 	i = 0;
-	while (str[i] != '\0' && str[i] > 32 && str[i] < 127 && str[i] != '-' && i++)
-		flag = 1;
+	while (str[i] != '\0' && str[i] > 32 && str[i] < 127 && str[i] != '-' && (flag = 1))
+		i++;
 	if (flag == 0 || str[i++] != ' ')
 		return (0);
 	flag = 0;
-	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9' && i++)
-		flag = 1;
+	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9' && (flag = 1))
+		i++;
 	if (flag == 0 || str[i++] != ' ')
 		return (0);
 	flag = 0;
-	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9' && i++)
-		flag = 1;
+	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9' && (flag = 1))
+		i++;
 	if (flag == 0 || str[i] != '\0')
 		return (0);
 	return (1);
@@ -111,13 +117,13 @@ char	is_link(char *s)
 		return (0);
 	i = 0;
 	flag = 0;
-	while (s[i] > 32 && s[i] < 127 && s[i] != '-' && i++)
-		flag = 1;
+	while (s[i] > 32 && s[i] < 127 && s[i] != '-' && (flag = 1))
+		i++;
 	if (flag == 0 || s[i++] != '-' || s[i] == 'L' || s[i] == '#')
 		return (0);
 	flag = 0;
-	while (s[i] > 32 && s[i] < 127 && s[i] != '-' && i++)
-		flag = 1;
+	while (s[i] > 32 && s[i] < 127 && s[i] != '-' && (flag = 1))
+		i++;
 	if (flag == 0 || s[i] != '\0')
 		return (0);
 	return (1);
@@ -133,7 +139,8 @@ void	room_push_front(t_room **room, char **arr, char priority)
 	new->name = ft_strdup(arr[0]);
 	new->priority = priority;
 	new->next = NULL;
-	new->sibling = NULL;
+	new->links = NULL;
+	new->links_size = 0;
 	if (!*room)
 		*room = new;
 	else
@@ -162,7 +169,8 @@ void	room_push_back(t_room **room, char **arr, char priority)
 	new->name = ft_strdup(arr[0]);
 	new->priority = priority;
 	new->next = NULL;
-	new->sibling = NULL;
+	new->links = NULL;
+	new->links_size = 0;
 	if (!tmp)
 		*room = new;
 	else
@@ -182,26 +190,28 @@ char	add_room(t_room **room, char *str, char priority)
 	y = ft_atoi(arr[2]);
 	while (tmp)
 	{
-		if (tmp->name == arr[0] || (tmp->x == x && tmp->y == y))
+		if (ft_strequ(tmp->name, arr[0]) || (tmp->x == x && tmp->y == y))
 			return (ERROR_NOT_UNIQUE_ROOM);
-		else if (priority > 0 && priority == tmp->priority)
-			return (priority == START ? ERROR_S_START : ERROR_S_END);
 		tmp = tmp->next;
 	}
-	if ((y = -1) && priority == START)
+	if (priority == START)
 		room_push_front(room, arr, priority);
 	else
 		room_push_back(room, arr, priority);
+	y = -1;
 	while (arr[++y])
 		free(arr[y]);
 	free(arr);
 	return (0);
 }
 
-char	add_room_with_command(t_room **room, t_list **list)
+char	add_room_with_command(t_room **room, t_list **list, char *flag)
 {
 	if (ft_strequ((*list)->content, "##start"))
 	{
+		if ((*flag & 1) == 1)
+			return (ERROR_S_START);
+		*flag = *flag | 1;
 		if (!(*list = (*list)->next) || !is_room((*list)->content))
 			return (ERROR_WITH_ROOM);
 		else
@@ -209,6 +219,9 @@ char	add_room_with_command(t_room **room, t_list **list)
 	}
 	else
 	{
+		if ((*flag & 2) == 2)
+			return (ERROR_S_END);
+		*flag = *flag | 2;
 		if (!(*list = (*list)->next) || !is_room((*list)->content))
 			return (ERROR_WITH_ROOM);
 		else
@@ -220,7 +233,9 @@ char	add_room_with_command(t_room **room, t_list **list)
 char	get_rooms(t_str *s, t_list **list)
 {
 	char	error;
+	char	flag;
 
+	flag = 0;
 	while (*list)
 	{
 		if (is_room((*list)->content))
@@ -230,11 +245,11 @@ char	get_rooms(t_str *s, t_list **list)
 		}
 		else if (is_command((*list)->content))
 		{
-			if ((error = add_room_with_command(&s->room, list)) != 0)
+			if ((error = add_room_with_command(&s->room, list, &flag)) != 0)
 				return (error);
 		}
 		else if (is_link((*list)->content))
-			return (0);
+			return ((flag == 3) ? 0 : ERROR_NOT_ENOUGH_INFO);
 		else if (((char*)(*list)->content)[0] != '#')
 			return (ERROR_INVALID_FILE);
 		*list = (*list)->next;
@@ -242,12 +257,96 @@ char	get_rooms(t_str *s, t_list **list)
 	return (ERROR_INVALID_FILE);
 }
 
-// char	get_links(t_str *s, t_list **list)
-// {
+t_room		**apply_link(t_room **links, t_room *room, int *size, char *error)
+{
+	t_room	**new_links;
+	int		i;
 
-// }
+	i = -1;
+	while (++i < *size)
+		if (ft_strequ(links[i]->name, room->name))
+		{
+			*error = ERROR_NOT_UNIQUE_LINK;
+			return (links);
+		}
+	new_links = (t_room **)malloc(sizeof(t_room *) * (*size + 1));
+	i = -1;
+	while (++i < *size)
+		new_links[i] = links[i];
+	new_links[i] = room;
+	i = -1;
+	if (*size > 0)
+		free(links);
+	*size += 1;
+	return (new_links);
+}
 
-char	parsing(t_str *s)
+char		connect_links(t_room *room1, t_room *room2)
+{
+	char	error;
+
+	if (!room1 || !room2 || ft_strequ(room1->name, room2->name))
+		return (ERROR_INVALID_LINK);
+	error = 0;
+	room1->links = apply_link(room1->links, room2, &room1->links_size, &error);
+	room2->links = apply_link(room2->links, room1, &room2->links_size, &error);
+	if (error != 0)
+		return (error);
+	return (0);
+}
+
+char		find_place_n_connect_links(t_room **head, char *link)
+{
+	char	**arr;
+	t_room	*tmp1;
+	t_room	*tmp2;
+	int		i;
+
+	tmp1 = *head;
+	tmp2 = *head;
+	arr = ft_strsplit(link, '-');
+	while (tmp1)
+	{
+		if (ft_strequ(tmp1->name, arr[0]))
+			break ;
+		tmp1 = tmp1->next;
+	}
+	while (tmp2)
+	{
+		if (ft_strequ(tmp2->name, arr[1]))
+			break ;
+		tmp2 = tmp2->next;
+	}
+	i = 0;
+	while (arr[i])
+		free(arr[i++]);
+	free(arr);
+	return (connect_links(tmp1, tmp2));
+}
+
+char		get_links(t_str *s, t_list **list)
+{
+	char	error;
+
+	if ((error = find_place_n_connect_links(&s->room, (*list)->content)) != 0)
+		return (error);
+
+	*list = (*list)->next;
+	while (*list)
+	{
+		if (is_link((*list)->content))
+		{
+			if ((error = find_place_n_connect_links(&s->room, (*list)->content)) != 0)
+				return (error);
+		}
+		else if (((char*)(*list)->content)[0] != '#')
+			return (ERROR_INVALID_FILE);
+		*list = (*list)->next;
+	}
+	return (0);
+}
+
+char		parsing(t_str *s)
 {
 	t_list	*tmp;
 	char	error;
@@ -263,7 +362,7 @@ char	parsing(t_str *s)
 		line_list_del(&s->line_list);
 		return (0);
 	}
-	if ((error = get_rooms(s, &tmp)) != 0) // Добавить get_links.
+	if ((error = get_rooms(s, &tmp)) != 0 || (error = get_links(s, &tmp)) != 0)
 	{
 		error_management(error);
 		line_list_del(&s->line_list);
@@ -274,15 +373,31 @@ char	parsing(t_str *s)
 	return (1);
 }
 
-int		main(void)
+#include <stdio.h>
+
+int			main(void)
 {
-	t_str *s;
+	t_str	*s;
 
 	s = (t_str*)malloc(sizeof(t_str));
 	if (!parsing(s))
 	{
 		free(s);
 		return (0);
+	}
+
+
+	int i;
+	while (s->room)
+	{
+		i = 0;
+		printf("room name = %s, priority = %d, x = %d, y = %d\n", s->room->name, s->room->priority, s->room->x, s->room->y);
+		while (i < s->room->links_size)
+		{
+			printf("link[%d] name: %s\n", i, s->room->links[i]->name);
+			i++;
+		}
+		s->room = s->room->next;
 	}
 	return 0;
 }
