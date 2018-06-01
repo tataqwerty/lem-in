@@ -1,24 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lem-in.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tkiselev <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/04/06 10:29:18 by tkiselev          #+#    #+#             */
+/*   Updated: 2018/05/08 19:48:22 by tkiselev         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lem-in.h"
-
-void	line_list_del(t_list **head)
-{
-	t_list *tmp;
-
-	if (!head || !*head)
-		return ;
-	while (*head)
-	{
-		tmp = (*head)->next;
-		free((*head)->content);
-		free(*head);
-		*head = tmp;
-	}
-}
-
-// void	room_list_del(t_room **room)
-// {
-
-// }
 
 void	error_management(char error)
 {
@@ -60,27 +52,36 @@ void	lines_to_list(t_str *s)
 	}
 }
 
+
+char	is_command(char *str)
+{
+	if (ft_strequ(str, "##start") || ft_strequ(str, "##end"))
+		return (1);
+	return (0);
+}
+
+// VERY BAD FUNCTION
 char		get_ants_counter(int *ants, t_list **list)
 {
 	int		i;
 
 	i = 0;
-	if (!list || !*list || !(*list)->content)
-		return (ERROR_INVALID_FILE);
 	while (*list)
 	{
-		if (((char*)(*list)->content)[0] >= '0' && ((char*)(*list)->content)[0] <= '9')
+		if (((char*)(*list)->content)[0] >= '0'
+			&& ((char*)(*list)->content)[0] <= '9')
 			break ;
-		else if (ft_strequ((*list)->content, "##start")
-			|| ft_strequ((*list)->content, "##end"))
+		else if (is_command((*list)->content))
 			return (ERROR_INVALID_ORDER);
 		else if (((char*)(*list)->content)[0] != '#')
-			return (ERROR_INVALID_ORDER);
+			return (ERROR_INVALID_FILE);
 		*list = (*list)->next;
 	}
 	if (!*list)
 		return (ERROR_INVALID_QUANTITY_OF_ANTS);
-	while (((char*)(*list)->content)[i] != '\0' && ((char*)(*list)->content)[i] >= '0' && ((char*)(*list)->content)[i] <= '9')
+	while (((char*)(*list)->content)[i] != '\0' &&
+		((char*)(*list)->content)[i] >= '0' &&
+		((char*)(*list)->content)[i] <= '9')
 		*ants = *ants * 10 + ((char*)(*list)->content)[i++] - 48;
 	if (i == 0 || *ants == 0 || ((char*)(*list)->content)[i] != '\0')
 		return (ERROR_INVALID_QUANTITY_OF_ANTS);
@@ -97,7 +98,8 @@ char	is_room(char *str)
 		return (0);
 	flag = 0;
 	i = 0;
-	while (str[i] != '\0' && str[i] > 32 && str[i] < 127 && str[i] != '-' && (flag = 1))
+	while (str[i] != '\0' && str[i] > 32 && str[i] < 127
+		&& str[i] != '-' && (flag = 1))
 		i++;
 	if (flag != 1 || str[i++] != ' ')
 		return (0);
@@ -246,8 +248,11 @@ char	get_rooms(t_str *s, t_list **list)
 			if ((error = add_room(&s->room, (*list)->content, 0)) != 0)
 				return (error);
 		}
-		else if ((error = add_room_with_command(&s->room, list, &flag)) != 0)
-			return (error);
+		else if (is_command((*list)->content))
+		{
+			if ((error = add_room_with_command(&s->room, list, &flag)) != 0)
+				return (error);
+		}
 		else if (is_link((*list)->content))
 			return ((flag == 3) ? 0 : ERROR_NOT_ENOUGH_INFO);
 		else if (((char*)(*list)->content)[0] != '#')
@@ -256,33 +261,6 @@ char	get_rooms(t_str *s, t_list **list)
 	}
 	return (ERROR_NOT_ENOUGH_INFO);
 }
-
-/*
-t_room		**apply_link(t_room **links, t_room *room, int *size, char *error)
-{
-	t_room	**new_links;
-	int		i;
-
-	i = -1;
-	while (++i < *size)
-	{
-		if (ft_strequ(links[i]->name, room->name))
-		{
-			*error = ERROR_NOT_UNIQUE_LINK;
-			return (links);
-		}
-	}
-	new_links = (t_room **)malloc(sizeof(t_room *) * (*size + 1));
-	i = -1;
-	while (++i < *size)
-		new_links[i] = links[i];
-	new_links[i] = room;
-	if (*size > 0)
-		free(links);
-	*size += 1;
-	return (new_links);
-}
-*/
 
 char		apply_link(t_room ***links, t_room *room, int *size)
 {
@@ -303,6 +281,7 @@ char		apply_link(t_room ***links, t_room *room, int *size)
 	if (*size > 0)
 		free(*links);
 	*size += 1;
+	*links = new_arr;
 	return (0);
 }
 
@@ -315,9 +294,6 @@ char		connect_links(t_room *room1, t_room *room2)
 	if ((error = apply_link(&room1->links, room2, &room1->links_size)) != 0 ||
 		(error = apply_link(&room2->links, room1, &room2->links_size)) != 0)
 		return (error);
-	return (0);
-	// room1->links = apply_link(room1->links, room2, &room1->links_size, &error);
-	// room2->links = apply_link(room2->links, room1, &room2->links_size, &error);
 	return (0);
 }
 
@@ -400,7 +376,6 @@ int			main(void)
 	s = (t_str*)malloc(sizeof(t_str));
 	if (!parsing(s))
 		exit (0);
-
 
 	int i;
 	while (s->room)
