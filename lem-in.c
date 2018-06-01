@@ -367,6 +367,14 @@ char		parsing(t_str *s)
 	return (1);
 }
 
+
+
+
+// ALGORITHM
+
+
+
+
 #include <stdio.h>
 
 int			main(void)
@@ -376,6 +384,8 @@ int			main(void)
 	s = (t_str*)malloc(sizeof(t_str));
 	if (!parsing(s))
 		exit (0);
+
+
 
 	int i;
 	while (s->room)
