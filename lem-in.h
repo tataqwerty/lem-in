@@ -9,11 +9,12 @@
 # define ERROR_INVALID_QUANTITY_OF_ANTS 4
 # define ERROR_WITH_ROOM 5
 # define ERROR_NOT_UNIQUE_ROOM 6
-# define ERROR_S_START 7
-# define ERROR_S_END 8
+# define ERROR_SECOND_START 7
+# define ERROR_SECOND_END 8
 # define ERROR_NOT_ENOUGH_INFO 9
 # define ERROR_INVALID_LINK 10
 # define ERROR_NOT_UNIQUE_LINK 11
+# define ERROR_INVALID_ORDER 12
 
 typedef	struct		s_ant
 {
