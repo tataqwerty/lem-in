@@ -362,7 +362,7 @@ char		parsing(t_str *s)
 		(error = get_links(s, &tmp)) != 0)
 	{
 		error_management(error);
-		return (0);
+		exit (0);
 	}
 	return (1);
 }
@@ -372,8 +372,13 @@ char		parsing(t_str *s)
 
 // ALGORITHM
 
+void	prepare_BFS(t_str *s)
+{
+	t_room	*queue;
 
-
+	queue = NULL;
+	enqueue();
+}
 
 #include <stdio.h>
 
@@ -382,10 +387,8 @@ int			main(void)
 	t_str	*s;
 
 	s = (t_str*)malloc(sizeof(t_str));
-	if (!parsing(s))
-		exit (0);
-
-
+	parsing(s);
+	prepare_BFS(s);
 
 	int i;
 	while (s->room)

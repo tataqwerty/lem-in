@@ -28,9 +28,13 @@ typedef struct		s_room
 	int				x;
 	int				y;
 	char			priority;
+	int				level;
+	struct s_room	**parents;
+	char			visited : 1;
+	char			iq : 1;
 	char			*name;
-	int				links_size;
 	struct s_room	**links;
+	int				links_size;
 	struct s_room	*next;
 }					t_room;
 
