@@ -12,6 +12,8 @@
 
 #include "lem-in.h"
 
+#include <stdio.h>
+
 void	error_management(char error)
 {
 	ft_putstr("Error: ");
@@ -372,15 +374,86 @@ char		parsing(t_str *s)
 
 // ALGORITHM
 
+t_room	*enqueue(t_room **queue, t_room *room)
+{
+	t_room *tmp;
+
+	tmp = *queue;
+	if (!*queue)
+	{
+		*queue = room;
+		(*queue)->iq = 1;
+	}
+	else
+	{
+		while ((*queue)->next)
+			*queue = (*queue)->next;
+		(*queue)->next = room;
+		(*queue)->iq = 1;
+		return ((*queue)->next);
+	}
+	return (*queue);
+}
+
+void	dequeue(t_room **queue)
+{
+	if (*queue)
+	{
+		(*queue)->iq = 0;
+		*queue = (*queue)->next;
+	}
+}
+
+t_room	*get_from_queue(t_room *queue, t_room *room_searched)
+{
+	while (queue)
+	{
+		if (queue == room_searched)
+			return (queue);
+		queue = queue->next;
+	}
+	return (NULL);
+}
+
+void	BFS(t_room *queue)
+{
+	int i;
+	t_room *tmp;
+
+	tmp = NULL;
+	i = -1;
+	if (!queue)
+		return ;
+	queue->visited = 1;
+	while (++i < queue->links_size)
+	{
+		if (!queue->links[i]->visited && !queue->links[i]->iq)
+			tmp = enqueue(&queue, queue->links[i]);
+		else if (queue->links[i]->iq)
+			tmp = get_from_queue(queue, queue->links[i]);
+		if (tmp)
+		{
+			if (tmp->level == 0 || queue->level < tmp->level)
+				add_info_to_vertex(tmp, queue, queue->level + 1);
+			else
+				
+		}
+		tmp = NULL;
+	}
+	dequeue(&queue);
+	BFS(queue);
+}
+
 void	prepare_BFS(t_str *s)
 {
 	t_room	*queue;
 
 	queue = NULL;
-	enqueue();
+	enqueue(&queue, s->room);
+	queue->level = 0;
+	BFS(queue);
 }
 
-#include <stdio.h>
 
 int			main(void)
 {
@@ -390,7 +463,7 @@ int			main(void)
 	parsing(s);
 	prepare_BFS(s);
 
-	int i;
+/*	int i;
 	while (s->room)
 	{
 		i = 0;
@@ -401,6 +474,6 @@ int			main(void)
 			i++;
 		}
 		s->room = s->room->next;
-	}
+	}*/
 	return 0;
 }
