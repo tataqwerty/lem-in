@@ -29,7 +29,7 @@ typedef struct		s_room
 	int				y;
 	char			priority;
 	int				level;
-	struct s_room	**parents;
+	struct s_room	*parent;
 	char			visited : 1;
 	char			iq : 1;
 	char			*name;
@@ -45,5 +45,11 @@ typedef struct
 	t_ant			*ant;
 	t_room			*room;
 }					t_str;
+
+typedef struct		s_queue
+{
+	t_room		*room;
+	struct s_queue	*next;
+}			t_queue;
 
 #endif

@@ -374,94 +374,87 @@ char		parsing(t_str *s)
 
 // ALGORITHM
 
-t_room	*enqueue(t_room **queue, t_room *room)
+void	enqueue(t_queue **queue, t_room *room)
 {
-	t_room *tmp;
+	t_queue	*tmp;
+	t_queue	*new;
 
 	tmp = *queue;
+	while (tmp)
+	{
+		if (tmp->next)
+			tmp = tmp->next;
+		else
+			break ;
+	}
+	new = (t_queue *)malloc(sizeof(t_queue));
+	new->next = NULL;
+	new->room = room;
+	new->room->iq = 1;	
 	if (!*queue)
-	{
-		*queue = room;
-		(*queue)->iq = 1;
-	}
+		*queue = new;
 	else
-	{
-		while ((*queue)->next)
-			*queue = (*queue)->next;
-		(*queue)->next = room;
-		(*queue)->iq = 1;
-		return ((*queue)->next);
-	}
-	return (*queue);
+		tmp->next = new;
 }
 
-void	dequeue(t_room **queue)
+void	dequeue(t_queue **queue)
 {
-	if (*queue)
-	{
-		(*queue)->iq = 0;
-		*queue = (*queue)->next;
-	}
+	t_queue	*tmp;
+
+	if (!*queue)
+		return ;
+	tmp = (*queue)->next;
+	(*queue)->iq = 0;
+	free(*queue);
+	*queue = tmp;
 }
 
-t_room	*get_from_queue(t_room *queue, t_room *room_searched)
+t_queue		*get_room_from_queue(t_queue *queue, t_room *room)
 {
 	while (queue)
 	{
-		if (queue == room_searched)
-			return (queue);
+		if (queue->room == room)
+			return (queue->room);
 		queue = queue->next;
 	}
-	return (NULL);
+	return (0);
 }
 
-void	BFS(t_room *queue)
+void	BFS(t_queue *queue)
 {
-	int i;
-	t_room *tmp;
+	int	i;
+	t_room	*tmp;
 
-	tmp = NULL;
-	i = -1;
 	if (!queue)
 		return ;
 	queue->visited = 1;
-	while (++i < queue->links_size)
+	if (queue->priority == END)
+		return ;
+	i = -1;
+	while (++i < queue->room->links_size)
 	{
-		if (!queue->links[i]->visited && !queue->links[i]->iq)
-			tmp = enqueue(&queue, queue->links[i]);
-		else if (queue->links[i]->iq)
-			tmp = get_from_queue(queue, queue->links[i]);
+		if (!queue->room->links[i]->visited || !queue->room->links[i]->iq)
+			enqueue(&queue, queue->room->links[i]);
+		tmp = get_room_from_queue(queue, queue->room->links[i]);
 		if (tmp)
 		{
-			if (tmp->level == 0 || queue->level < tmp->level)
-				add_info_to_vertex(tmp, queue, queue->level + 1);
-			else
-				
+			
 		}
-		tmp = NULL;
 	}
 	dequeue(&queue);
 	BFS(queue);
 }
 
-void	prepare_BFS(t_str *s)
-{
-	t_room	*queue;
-
-	queue = NULL;
-	enqueue(&queue, s->room);
-	queue->level = 0;
-	BFS(queue);
-}
-
-
 int			main(void)
 {
 	t_str	*s;
+	t_queue	*queue;
 
 	s = (t_str*)malloc(sizeof(t_str));
 	parsing(s);
-	prepare_BFS(s);
+	queue = NULL;
+	enqueue(&queue, s->room);
+	BFS(queue); // Для нахождения одного найкратчайшего пути.
 
 /*	int i;
 	while (s->room)
