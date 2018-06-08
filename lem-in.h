@@ -27,16 +27,29 @@ typedef struct		s_room
 {
 	int				x;
 	int				y;
-	char			priority;
 	int				level;
-	struct s_room	*parent;
-	char			visited : 1;
-	char			iq : 1;
-	char			*name;
-	struct s_room	**links;
 	int				links_size;
+	char			priority;
+	char			used : 1;
+	char			iq : 1;
+	char			visited : 1;
+	char			*name;
+	struct s_room	*parent;
 	struct s_room	*next;
+	struct s_room	**links;
 }					t_room;
+
+typedef struct		s_way
+{
+	t_room			*room;
+	struct s_way	*next;
+}					t_way;
+
+typedef struct
+{
+	t_way			*way;
+	int				length;
+}					t_ways;
 
 typedef struct
 {
@@ -44,12 +57,15 @@ typedef struct
 	t_list			*line_list;
 	t_ant			*ant;
 	t_room			*room;
+	t_ways			**ways;
+	int				ways_size;
 }					t_str;
 
 typedef struct		s_queue
 {
-	t_room		*room;
+	t_room			*room;
 	struct s_queue	*next;
-}			t_queue;
+}					t_queue;
+
 
 #endif

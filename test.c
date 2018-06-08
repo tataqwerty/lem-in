@@ -1,59 +1,93 @@
-#include "libft.h"
+#include "lem-in.h"
 #include <stdio.h>
 
-void	func_create(t_list ***list, t_list *new, int *size)
+t_room		*init_room(char *name, char priority)
 {
-	t_list	**new_list;
-	int		i;
+	t_room	*new;
 
-	i = 0;
-	new_list = (t_list **)malloc(sizeof(t_list *) * (*size + 1));
-	i = 0;
-	while (i < *size)
+	new = (t_room*)malloc(sizeof(t_room));
+	new->x = 0;
+	new->y = 0;
+	new->level = 0;
+	new->links_size = 0;
+	new->priority = priority;
+	new->used = 0;
+	new->iq = 0;
+	new->visited = 0;
+	new->name = ft_strdup(name);
+	new->parent = NULL;
+	new->next = NULL;
+	new->links = NULL;
+	new->links_size = 0;
+	return (new);
+}
+
+void	enqueue(t_queue **queue, t_room *room)
+{
+	t_queue	*tmp;
+	t_queue	*new;
+
+	tmp = *queue;
+	while (tmp)
 	{
-		new_list[i] = (*list)[i];
-		i++;
+		if (tmp->next)
+			tmp = tmp->next;
+		else
+			break ;
 	}
-	new_list[i] = new;
-	if (*size > 0)
-		free(*list);
-	*size += 1;
-	*list = new_list;	
+	new = (t_queue *)malloc(sizeof(t_queue));
+	new->next = NULL;
+	new->elem = room;
+	new->elem->iq = 1;	
+	if (!*queue)
+		*queue = new;
+	else
+		tmp->next = new;
+}
+
+void	dequeue(t_queue **queue)
+{
+	t_queue	*tmp;
+
+	if (!*queue)
+		return ;
+	tmp = (*queue)->next;
+	(*queue)->elem->iq = 0;
+	free(*queue);
+	*queue = tmp;
+}
+
+void	func(t_queue *queue)
+{
+	t_room	*room2;
+	t_room	*room3;
+
+	room2 = init_room("2", 0);
+	room3 = init_room("3", 0);
+	// enqueue(&queue, room2);
+	// enqueue(&queue, room3);
+	dequeue(&queue);
+	dequeue(&queue);
+	dequeue(&queue);
+	dequeue(&queue);
+	dequeue(&queue);
 }
 
 int		main(void)
 {
-	t_list **link_list;
-	int size = 0;
-	t_list *new_list;
-	t_list *new_list2;
-	t_list *new_list3;
+	t_room	*room1;
 
-	new_list = (t_list *)malloc(sizeof(t_list));
-	new_list->next = NULL;
-	new_list->content = ft_strdup("Hello");
+	room1 = init_room("1", 0);
 
-	func_create(&link_list, new_list, &size);
-	
-	new_list2 = (t_list *)malloc(sizeof(t_list));
-	new_list2->next = NULL;
-	new_list2->content = ft_strdup(", World!");
-	
-	func_create(&link_list, new_list2, &size);
+	t_queue	*queue;
 
-	new_list3 = (t_list *)malloc(sizeof(t_list));
-	new_list3->next = NULL;
-	new_list3->content = ft_strdup("tralala");
-
-	func_create(&link_list, new_list3, &size);
-
-	int i = 0;
-	while (i < size)
+	queue = NULL;
+	enqueue(&queue, room1);
+	func(queue);
+	while (queue)
 	{
-		printf("content = %s\n", link_list[i]->content);
-		i++;
+		printf("name = %s\n", queue->elem->name);
+		queue = queue->next;
 	}
-	while (1)
-		;
 	return (0);
 }
