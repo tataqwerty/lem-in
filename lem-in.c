@@ -62,7 +62,6 @@ char	is_command(char *str)
 	return (0);
 }
 
-// VERY BAD FUNCTION
 char		get_ants_counter(int *ants, t_list **list)
 {
 	int		i;
@@ -429,7 +428,7 @@ t_room		*get_room_from_queue(t_queue *queue, t_room *room)
 
 char	BFS(t_queue **queue)
 {
-	int	i;
+	int		i;
 	t_room	*tmp;
 
 	if (!*queue)
@@ -523,6 +522,22 @@ t_way	*create_way(t_room *room)
 	return (way);
 }
 
+void	delete_end_link(t_room ***links, int *links_size)
+{
+	t_room	**new_links;
+	int		i;
+
+	new_links = (t_room **)malloc(sizeof(t_room *) * (*links_size - 1));
+	i = -1;
+	while (++i < *links_size && (*links)[i]->priority != END)
+		new_links[i] = (*links)[i];
+	while (++i < *links_size)
+		new_links[i - 1] = (*links)[i];
+	(*links_size)--;
+	free(*links);
+	*links = new_links;
+}
+
 t_ways	**generate_ways(t_str *s)
 {
 	t_ways	**ways;
@@ -540,6 +555,8 @@ t_ways	**generate_ways(t_str *s)
 	enqueue(&queue, s->room);
 	while (BFS(&queue))
 	{
+		if (end->level == 1)
+			delete_end_link(&s->room->links, &s->room->links_size);
 		realloc_ways(&ways, create_way(end), &size);
 		clear_rooms(s->room);
 		while (queue)
@@ -563,31 +580,17 @@ int			main(void)
 		exit (0);
 	}
 
-	int i = -1;
-	t_way *tmp_way;
-	while (++i < s->ways_size)
-	{
-		tmp_way = s->ways[i]->way;
-		printf("PATH no: %d\n", i + 1);
-		while (tmp_way)
-		{
-			printf("%s\n", tmp_way->room->name);
-			tmp_way = tmp_way->next;
-		}
-	}
-
-
-	// int i;
-	// while (s->room)
+	// int i = -1;
+	// t_way *tmp_way;
+	// while (++i < s->ways_size)
 	// {
-	// 	i = 0;
-	// 	printf("room name = %s, priority = %d, x = %d, y = %d\n", s->room->name, s->room->priority, s->room->x, s->room->y);
-	// 	while (i < s->room->links_size)
+	// 	tmp_way = s->ways[i]->way;
+	// 	printf("PATH no: %d\n", i + 1);
+	// 	while (tmp_way)
 	// 	{
-	// 		printf("link[%d] name: %s\n", i, s->room->links[i]->name);
-	// 		i++;
+	// 		printf("%s\n", tmp_way->room->name);
+	// 		tmp_way = tmp_way->next;
 	// 	}
-	// 	s->room = s->room->next;
 	// }
 	return (0);
 }
