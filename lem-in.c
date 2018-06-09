@@ -375,6 +375,8 @@ char		parsing(t_str *s)
 	s->ants_counter = 0;
 	s->room = NULL;
 	s->ant = NULL;
+	s->ways = NULL;
+	s->ways_size = 0;
 	lines_to_list(s);
 	tmp = s->line_list;
 	get_ants_counter(&s->ants_counter, &tmp);
@@ -579,21 +581,21 @@ t_ways	**generate_ways(t_str *s)
 
 void	output(t_str *s)
 {
-	t_list	*tmp;
+	// t_list	*tmp;
 
-	tmp = s->line_list;
-	while (tmp)
-	{
-		if (is_command(tmp->content) || (!is_command(tmp->content) && ((char*)tmp->content)[0] != '#'))
-			ft_putendl(tmp->content);
-		tmp = tmp->next;
-	}
+	// tmp = s->line_list;
+	// while (tmp)
+	// {
+	// 	if (is_command(tmp->content) || (!is_command(tmp->content) && ((char*)tmp->content)[0] != '#'))
+	// 		ft_putendl(tmp->content);
+	// 	tmp = tmp->next;
+	// }
 	
 	int i = -1;
 	t_way	*tmp2;
 	while (++i < s->ways_size)
 	{
-		printf("PATH no: %d\n", i);
+		printf("PATH no: %d\n", i + 1);
 		tmp2 = s->ways[i]->way;
 		while (tmp2)
 		{
@@ -603,6 +605,98 @@ void	output(t_str *s)
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+//DFS
+
+// int		get_way_length(t_way *way)
+// {
+// 	int		length;
+
+// 	length = -1;
+// 	while (way)
+// 	{
+// 		length++;
+// 		way = way->next;
+// 	}
+// 	return (length);
+// }
+
+// void	pushfront(t_way **way, t_room *room)
+// {
+// 	t_way	*new;
+
+// 	new = (t_way *)malloc(sizeof(t_way));
+// 	new->next = *way;
+// 	new->room = room;
+// 	*way = new;
+// }
+
+// t_way	*create_way(t_room *room)
+// {
+// 	t_way	*way;
+
+// 	way = NULL;
+// 	while (room && room->priority != START)
+// 	{
+// 		pushfront(&way, room);
+// 		room = room->parent;
+// 	}
+// 	pushfront(&way, room);
+// 	return (way);
+// }
+
+// void	realloc_ways(t_ways ***ways, t_way *way, int *size)
+// {
+// 	t_ways	**new_ways;
+// 	int		i;
+
+// 	new_ways = (t_ways **)malloc(sizeof(t_ways * ) * (*size + 1));
+// 	i  = -1;
+// 	while (++i < *size)
+// 		new_ways[i] = (*ways)[i];
+// 	new_ways[i] = (t_ways *)malloc(sizeof(t_ways));
+// 	new_ways[i]->way = way;
+// 	new_ways[i]->length = get_way_length(way);
+// 	*ways = new_ways;
+// 	(*size)++;
+// }
+
+// void	DFS(t_room *room, t_ways ***ways, int *size)
+// {
+// 	int		i;
+
+// 	if (room->priority == END)
+// 	{
+// 		realloc_ways(ways, create_way(room), size);
+// 		room->parent = NULL;
+// 		return ;
+// 	}
+// 	room->visited = 1;
+// 	i = -1;
+// 	while (++i < room->links_size)
+// 	{
+// 		if (!room->links[i]->visited)
+// 		{
+// 			room->links[i]->parent = room;
+// 			DFS(room->links[i], ways, size);
+// 		}
+// 	}
+// 	room->visited = 0;
+// 	room->parent = NULL;
+// 	return ;
+// }
+
 int			main(void)
 {
 	t_str	*s;
@@ -610,6 +704,7 @@ int			main(void)
 
 	s = (t_str*)malloc(sizeof(t_str));
 	err = parsing(s);
+	// DFS(s->room, &s->ways, &s->ways_size);
 	s->ways = generate_ways(s);
 	if (!s->ways)
 	{
