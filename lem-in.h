@@ -13,8 +13,7 @@
 # define ERROR_SECOND_END 8
 # define ERROR_NOT_ENOUGH_INFO 9
 # define ERROR_INVALID_LINK 10
-# define ERROR_NOT_UNIQUE_LINK 11
-# define ERROR_INVALID_ORDER 12
+# define ERROR_INVALID_ORDER 11
 
 typedef	struct		s_ant
 {
@@ -66,6 +65,5 @@ typedef struct		s_queue
 	t_room			*room;
 	struct s_queue	*next;
 }					t_queue;
-
 
 #endif

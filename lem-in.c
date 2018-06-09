@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 
-void	error_management(char error)
+void	error(char error)
 {
 	ft_putstr("Error: ");
 	if (error == ERROR_INVALID_FILE)
@@ -33,12 +33,11 @@ void	error_management(char error)
 		ft_putstr("several ends.\n");
 	else if (error == ERROR_NOT_ENOUGH_INFO)
 		ft_putstr("not enough information.\n");
-	else if (error == ERROR_NOT_UNIQUE_LINK)
-		ft_putstr("not unique link.\n");
 	else if (error == ERROR_INVALID_LINK)
 		ft_putstr("invalid link.\n");
 	else if (error == ERROR_INVALID_ORDER)
 		ft_putstr("invalid order.\n");
+	exit (0);
 }
 
 void	lines_to_list(t_str *s)
@@ -62,7 +61,7 @@ char	is_command(char *str)
 	return (0);
 }
 
-char		get_ants_counter(int *ants, t_list **list)
+void		get_ants_counter(int *ants, t_list **list)
 {
 	int		i;
 
@@ -73,21 +72,20 @@ char		get_ants_counter(int *ants, t_list **list)
 			&& ((char*)(*list)->content)[0] <= '9')
 			break ;
 		else if (is_command((*list)->content))
-			return (ERROR_INVALID_ORDER);
+			error(ERROR_INVALID_ORDER);
 		else if (((char*)(*list)->content)[0] != '#')
-			return (ERROR_INVALID_FILE);
+			error(ERROR_INVALID_FILE);
 		*list = (*list)->next;
 	}
 	if (!*list)
-		return (ERROR_INVALID_QUANTITY_OF_ANTS);
+		error(ERROR_INVALID_QUANTITY_OF_ANTS);
 	while (((char*)(*list)->content)[i] != '\0' &&
 		((char*)(*list)->content)[i] >= '0' &&
 		((char*)(*list)->content)[i] <= '9')
 		*ants = *ants * 10 + ((char*)(*list)->content)[i++] - 48;
 	if (i == 0 || *ants == 0 || ((char*)(*list)->content)[i] != '\0')
-		return (ERROR_INVALID_QUANTITY_OF_ANTS);
+		error(ERROR_INVALID_QUANTITY_OF_ANTS);
 	*list = (*list)->next;
-	return (0);
 }
 
 char	is_room(char *str)
@@ -190,7 +188,7 @@ void	room_push_back(t_room **room, char **arr, char priority)
 		tmp->next = new;
 }
 
-char	add_room(t_room **room, char *str, char priority)
+void	add_room(t_room **room, char *str, char priority)
 {
 	t_room	*tmp;
 	char	**arr;
@@ -204,7 +202,7 @@ char	add_room(t_room **room, char *str, char priority)
 	while (tmp)
 	{
 		if (ft_strequ(tmp->name, arr[0]) || (tmp->x == x && tmp->y == y))
-			return (ERROR_NOT_UNIQUE_ROOM);
+			error(ERROR_NOT_UNIQUE_ROOM);
 		tmp = tmp->next;
 	}
 	if (priority == START)
@@ -215,59 +213,55 @@ char	add_room(t_room **room, char *str, char priority)
 	while (arr[++y])
 		free(arr[y]);
 	free(arr);
-	return (0);
 }
 
-char	add_room_with_command(t_room **room, t_list **list, char *flag)
+void	add_room_with_command(t_room **room, t_list **list, char *flag)
 {
 	if (ft_strequ((*list)->content, "##start"))
 	{
 		if ((*flag & 1) == 1)
-			return (ERROR_SECOND_START);
+			error(ERROR_SECOND_START);
 		*flag = *flag | 1;
 		if (!(*list = (*list)->next) || !is_room((*list)->content))
-			return (ERROR_WITH_ROOM);
+			error(ERROR_WITH_ROOM);
 		else
-			return (add_room(room, (*list)->content, START));
+			add_room(room, (*list)->content, START);
 	}
 	else if (ft_strequ((*list)->content, "##end"))
 	{
 		if ((*flag & 2) == 2)
-			return (ERROR_SECOND_END);
+			error(ERROR_SECOND_END);
 		*flag = *flag | 2;
 		if (!(*list = (*list)->next) || !is_room((*list)->content))
-			return (ERROR_WITH_ROOM);
+			error(ERROR_WITH_ROOM);
 		else
-			return (add_room(room, (*list)->content, END));
+			add_room(room, (*list)->content, END);
 	}
-	return (0);
 }
 
-char	get_rooms(t_str *s, t_list **list)
+void	get_rooms(t_str *s, t_list **list)
 {
-	char	error;
 	char	flag;
 
 	flag = 0;
 	while (*list)
 	{
 		if (is_room((*list)->content))
-		{
-			if ((error = add_room(&s->room, (*list)->content, 0)) != 0)
-				return (error);
-		}
+			add_room(&s->room, (*list)->content, 0);
 		else if (is_command((*list)->content))
-		{
-			if ((error = add_room_with_command(&s->room, list, &flag)) != 0)
-				return (error);
-		}
+			add_room_with_command(&s->room, list, &flag);
 		else if (is_link((*list)->content))
-			return ((flag == 3) ? 0 : ERROR_NOT_ENOUGH_INFO);
+		{
+			if (flag != 3)
+				error(ERROR_NOT_ENOUGH_INFO);
+			else
+				return ;
+		}
 		else if (((char*)(*list)->content)[0] != '#')
-			return (ERROR_INVALID_FILE);
+			error(ERROR_INVALID_FILE);
 		*list = (*list)->next;
 	}
-	return (ERROR_NOT_ENOUGH_INFO);
+	error(ERROR_NOT_ENOUGH_INFO);
 }
 
 char		apply_link(t_room ***links, t_room *room, int *size)
@@ -279,7 +273,7 @@ char		apply_link(t_room ***links, t_room *room, int *size)
 	while (++i < *size)
 	{
 		if (ft_strequ((*links)[i]->name, room->name))
-			return (ERROR_NOT_UNIQUE_LINK);
+			return (0);
 	}
 	new_arr = (t_room **)malloc(sizeof(t_room *) * (*size + 1));
 	i = -1;
@@ -355,24 +349,40 @@ char		get_links(t_str *s, t_list **list)
 	return (0);
 }
 
+void	find_and_delete_list(t_list *main_list, t_list *tmp)
+{
+	t_list	*next;
+
+	while (main_list->next && main_list->next != tmp)
+		main_list = main_list->next;
+	if (!main_list->next)
+		return ;
+	while (main_list->next)
+	{
+		next = main_list->next->next;
+		free(main_list->next->content);
+		main_list->next->content = NULL;
+		free(main_list->next);
+		main_list->next = next;
+	}
+}
+
 char		parsing(t_str *s)
 {
 	t_list	*tmp;
-	char	error;
+	char	err;
 
 	s->ants_counter = 0;
 	s->room = NULL;
 	s->ant = NULL;
 	lines_to_list(s);
 	tmp = s->line_list;
-	if ((error = get_ants_counter(&s->ants_counter, &tmp)) != 0 ||
-		(error = get_rooms(s, &tmp)) != 0 ||
-		(error = get_links(s, &tmp)) != 0)
-	{
-		error_management(error);
-		exit (0);
-	}
-	return (1);
+	get_ants_counter(&s->ants_counter, &tmp);
+	get_rooms(s, &tmp);
+	err = get_links(s, &tmp);
+	if (err != 0)
+		find_and_delete_list(s->line_list, tmp);
+	return (err);
 }
 
 
@@ -567,30 +577,45 @@ t_ways	**generate_ways(t_str *s)
 	return (ways);
 }
 
+void	output(t_str *s)
+{
+	t_list	*tmp;
+
+	tmp = s->line_list;
+	while (tmp)
+	{
+		if (is_command(tmp->content) || (!is_command(tmp->content) && ((char*)tmp->content)[0] != '#'))
+			ft_putendl(tmp->content);
+		tmp = tmp->next;
+	}
+	
+	int i = -1;
+	t_way	*tmp2;
+	while (++i < s->ways_size)
+	{
+		printf("PATH no: %d\n", i);
+		tmp2 = s->ways[i]->way;
+		while (tmp2)
+		{
+			ft_putendl(tmp2->room->name);
+			tmp2 = tmp2->next;
+		}
+	}
+}
+
 int			main(void)
 {
 	t_str	*s;
+	char	err;
 
 	s = (t_str*)malloc(sizeof(t_str));
-	parsing(s);
+	err = parsing(s);
 	s->ways = generate_ways(s);
 	if (!s->ways)
 	{
-		error_management(ERROR_NOT_ENOUGH_INFO);
+		error(err);
 		exit (0);
 	}
-
-	// int i = -1;
-	// t_way *tmp_way;
-	// while (++i < s->ways_size)
-	// {
-	// 	tmp_way = s->ways[i]->way;
-	// 	printf("PATH no: %d\n", i + 1);
-	// 	while (tmp_way)
-	// 	{
-	// 		printf("%s\n", tmp_way->room->name);
-	// 		tmp_way = tmp_way->next;
-	// 	}
-	// }
+	output(s);
 	return (0);
 }
