@@ -140,7 +140,7 @@ t_room		*init_room(char **arr, char priority)
 	new = (t_room*)malloc(sizeof(t_room));
 	new->x = ft_atoi(arr[1]);
 	new->y = ft_atoi(arr[2]);
-	new->level = 0;
+	// new->level = 0;
 	new->links_size = 0;
 	new->priority = priority;
 	// new->used = 0;
@@ -150,7 +150,6 @@ t_room		*init_room(char **arr, char priority)
 	new->parent = NULL;
 	new->next = NULL;
 	new->links = NULL;
-	new->links_size = 0;
 	return (new);
 }
 
@@ -375,8 +374,6 @@ char		parsing(t_str *s)
 	s->ants_counter = 0;
 	s->room = NULL;
 	s->ant = NULL;
-	s->ways = NULL;
-	s->ways_size = 0;
 	lines_to_list(s);
 	tmp = s->line_list;
 	get_ants_counter(&s->ants_counter, &tmp);
@@ -731,13 +728,235 @@ char		parsing(t_str *s)
 
 // BFS_MOD
 
-void	BFS()
+
+
+
+int		way_length(t_way *way)
 {
-	
+	int		length;
+
+	length = -1;
+	while (way)
+	{
+		length++;
+		way = way->next;
+	}
+	return (length);
+}
+
+void	delete_ways(t_ways ***ways, int *ways_size)
+{
+	t_way	*next;
+	t_way	*current;
+	int		i;
+
+	i = -1;
+	while (++i < *ways_size)
+	{
+		(*ways)[i]->length = 0;
+		current = (*ways)[i]->way;
+		while (current)
+		{
+			next = current->next;
+			free(current);
+			current = next;
+		}
+		free((*ways)[i]);
+	}
+	free(*ways);
+	*ways = NULL;
+	*ways_size = 0;
+}
+
+void	remalloc_ways(t_ways ***ways, t_way *way, int *ways_size)
+{
+	t_ways		**new_ways;
+	int			i;
+
+	new_ways = (t_ways **)malloc(sizeof(t_ways *) * (*ways_size + 1));
+	i = -1;
+	while (++i < *ways_size)
+		new_ways[i] = (*ways)[i];
+	new_ways[i] = (t_ways *)malloc(sizeof(t_ways));
+	new_ways[i]->way = way;
+	new_ways[i]->length = way_length(way);
+	if (*ways_size > 0)
+		free(*ways);
+	(*ways_size)++;
+	*ways = new_ways;
+}
+
+void	enqueue(t_queue **queue, t_way *way)
+{
+	t_queue		*new;
+	t_queue		*tmp;
+
+	new = (t_queue *)malloc(sizeof(t_queue));
+	new->next = NULL;
+	new->way = way;
+	tmp = *queue;
+	while (tmp && tmp->next)
+		tmp = tmp->next;
+	if (!*queue)
+		*queue = new;
+	else
+		tmp->next = new;
+}
+
+void	dequeue(t_queue **queue)
+{
+	t_queue		*tmp_q;
+	t_way		*current;
+	t_way		*next;
+
+	if (!*queue)
+		return ;
+	tmp_q = (*queue)->next;
+	current = (*queue)->way;
+	while (current)
+	{
+		next = current->next;
+		free(current);
+		current = next;
+	}
+	free(*queue);
+	*queue = tmp_q;
+}
+
+char	check_way(t_way *way, t_room *next_room)
+{
+	while (way)
+	{
+		if (way->room == next_room)
+			return (0);
+		way = way->next;
+	}
+	return (1);
+}
+
+t_way		*copy_way(t_way *way)
+{
+	t_way	*new_way;
+	t_way	*tmp;
+	t_way	*new;
+
+	new_way = NULL;
+	while (way)
+	{
+		new = (t_way *)malloc(sizeof(t_way));
+		new->next = NULL;
+		new->room = way->room;
+		if (!new_way)
+			new_way = new;
+		else
+		{
+			tmp = new_way;
+			while (tmp->next)
+				tmp = tmp->next;
+			tmp->next = new;
+		}
+		way = way->next;
+	}
+	return (new_way);
+}
+
+t_way		*create_way(t_way *way, t_room *next_room)
+{
+	t_way	*new_way;
+	t_way	*tmp;
+	t_way	*new;
+
+	new_way = copy_way(way);
+	if (next_room)
+	{
+		new = (t_way *)malloc(sizeof(t_way));
+		new->next = NULL;
+		new->room = next_room;
+		if (!new_way)
+			new_way = new;
+		else
+		{
+			tmp = new_way;
+			while (tmp->next)
+				tmp = tmp->next;
+			tmp->next = new;			
+		}
+	}
+	return (new_way);
 }
 
 
 
+void	prohodochka(t_way *way, int i)
+{
+	printf("PATH no: %d\n", i);
+	while (way)
+	{
+		printf("%s", way->room->name);
+		way = way->next;
+		if (way)
+			printf("=>");
+		else
+			printf("\n");
+	}
+}
+
+
+void	BFS(t_queue **queue, t_ways ***ways, int *ways_size, int k)
+{
+	int		i;
+	t_way	*tmp_way;
+
+	if (!*queue)
+		return ;
+	prohodochka((*queue)->way, ++k);
+	tmp_way = (*queue)->way;
+	while (tmp_way && tmp_way->next)
+		tmp_way = tmp_way->next;
+	if (tmp_way->room->priority == END)
+	{
+		if (way_length((*queue)->way) == 1)
+		{
+			delete_ways(ways, ways_size);
+			remalloc_ways(ways, create_way((*queue)->way, NULL), ways_size);
+			return ;
+		}
+		remalloc_ways(ways, create_way((*queue)->way, NULL), ways_size);
+	}
+	else
+	{
+		i = -1;
+		while (++i < tmp_way->room->links_size)
+			if (check_way((*queue)->way, tmp_way->room->links[i]))
+				enqueue(queue, create_way((*queue)->way, tmp_way->room->links[i]));
+	}
+	dequeue(queue);
+	BFS(queue, ways, ways_size, k);
+}
+
+void	generate_ways(t_str *s)
+{
+	t_queue	*queue;
+
+	queue = NULL;
+	s->ways = NULL;
+	s->ways_size = 0;
+	enqueue(&queue, create_way(NULL, s->room));
+	BFS(&queue, &s->ways, &s->ways_size, 0);
+}
+
+
+
+// void	output(t_str *s)
+// {
+// 	int i = -1;
+// 	t_way	*tmp2;
+// 	while (++i < s->ways_size)
+// 	{
+// 		printf("PATH no: %d\n", i + 1);
+// 		prohodochka(s->ways[i]->way);	
+// 	}
+// }
 
 int			main(void)
 {
@@ -746,14 +965,12 @@ int			main(void)
 
 	s = (t_str*)malloc(sizeof(t_str));
 	err = parsing(s);
-	// s->ways = generate_ways(s);
+	generate_ways(s);
 	// if (!s->ways)
 	// {
 	// 	error(err);
 	// 	exit (0);
 	// }
-	output(s);
-	while (1)
-		;
+	// output(s);
 	return (0);
 }
