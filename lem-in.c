@@ -143,9 +143,9 @@ t_room		*init_room(char **arr, char priority)
 	new->level = 0;
 	new->links_size = 0;
 	new->priority = priority;
-	new->used = 0;
-	new->iq = 0;
-	new->visited = 0;
+	// new->used = 0;
+	// new->iq = 0;
+	// new->visited = 0;
 	new->name = ft_strdup(arr[0]);
 	new->parent = NULL;
 	new->next = NULL;
@@ -392,230 +392,218 @@ char		parsing(t_str *s)
 
 // ALGORITHM
 
-void		enqueue(t_queue **queue, t_room *room)
-{
-	t_queue	*tmp;
-	t_queue	*new;
+// void		enqueue(t_queue **queue, t_room *room)
+// {
+// 	t_queue	*tmp;
+// 	t_queue	*new;
 
-	tmp = *queue;
-	while (tmp)
-	{
-		if (tmp->next)
-			tmp = tmp->next;
-		else
-			break ;
-	}
-	new = (t_queue *)malloc(sizeof(t_queue));
-	new->next = NULL;
-	new->room = room;
-	new->room->iq = 1;	
-	if (!*queue)
-		*queue = new;
-	else
-		tmp->next = new;
-}
+// 	tmp = *queue;
+// 	while (tmp)
+// 	{
+// 		if (tmp->next)
+// 			tmp = tmp->next;
+// 		else
+// 			break ;
+// 	}
+// 	new = (t_queue *)malloc(sizeof(t_queue));
+// 	new->next = NULL;
+// 	new->room = room;
+// 	new->room->iq = 1;	
+// 	if (!*queue)
+// 		*queue = new;
+// 	else
+// 		tmp->next = new;
+// }
 
-void		dequeue(t_queue **queue)
-{
-	t_queue	*tmp;
+// void		dequeue(t_queue **queue)
+// {
+// 	t_queue	*tmp;
 
-	if (!*queue)
-		return ;
-	tmp = (*queue)->next;
-	(*queue)->room->iq = 0;
-	free(*queue);
-	*queue = tmp;
-}
+// 	if (!*queue)
+// 		return ;
+// 	tmp = (*queue)->next;
+// 	(*queue)->room->iq = 0;
+// 	free(*queue);
+// 	*queue = tmp;
+// }
 
-t_room		*get_room_from_queue(t_queue *queue, t_room *room)
-{
-	while (queue)
-	{
-		if (queue->room == room)
-			return (queue->room);
-		queue = queue->next;
-	}
-	return (0);
-}
+// t_room		*get_room_from_queue(t_queue *queue, t_room *room)
+// {
+// 	while (queue)
+// 	{
+// 		if (queue->room == room)
+// 			return (queue->room);
+// 		queue = queue->next;
+// 	}
+// 	return (0);
+// }
 
-char	BFS(t_queue **queue)
-{
-	int		i;
-	t_room	*tmp;
+// char	BFS(t_queue **queue)
+// {
+// 	int		i;
+// 	t_room	*tmp;
 
-	if (!*queue)
-		return (0);
-	(*queue)->room->visited = 1;
-	i = -1;
-	while (++i < (*queue)->room->links_size)
-	{
-		if (!(*queue)->room->links[i]->visited &&
-			!(*queue)->room->links[i]->iq && !(*queue)->room->links[i]->used)
-			enqueue(queue, (*queue)->room->links[i]);
-		tmp = get_room_from_queue((*queue), (*queue)->room->links[i]);
-		if (tmp && tmp->level == 0)
-		{
-			tmp->level = (*queue)->room->level + 1;
-			tmp->parent = (*queue)->room;
-			if (tmp->priority == END)
-				return (1);
-		}
-	}
-	dequeue(queue);
-	return (BFS(queue));
-}
+// 	if (!*queue)
+// 		return (0);
+// 	(*queue)->room->visited = 1;
+// 	i = -1;
+// 	while (++i < (*queue)->room->links_size)
+// 	{
+// 		if (!(*queue)->room->links[i]->visited &&
+// 			!(*queue)->room->links[i]->iq && !(*queue)->room->links[i]->used)
+// 			enqueue(queue, (*queue)->room->links[i]);
+// 		tmp = get_room_from_queue((*queue), (*queue)->room->links[i]);
+// 		if (tmp && tmp->level == 0)
+// 		{
+// 			tmp->level = (*queue)->room->level + 1;
+// 			tmp->parent = (*queue)->room;
+// 			if (tmp->priority == END)
+// 				return (1);
+// 		}
+// 	}
+// 	dequeue(queue);
+// 	return (BFS(queue));
+// }
 
-void	clear_rooms(t_room *room)
-{
-	while (room)
-	{
-		room->visited = 0;
-		room->parent = NULL;
-		room->level = 0;
-		room = room->next;
-	}
-}
+// void	clear_rooms(t_room *room)
+// {
+// 	while (room)
+// 	{
+// 		room->visited = 0;
+// 		room->parent = NULL;
+// 		room->level = 0;
+// 		room = room->next;
+// 	}
+// }
 
-int		way_length(t_way *way)
-{
-	int		length;
+// int		way_length(t_way *way)
+// {
+// 	int		length;
 
-	length = -1;
-	while (way)
-	{
-		length++;
-		way = way->next;
-	}
-	return (length);
-}
+// 	length = -1;
+// 	while (way)
+// 	{
+// 		length++;
+// 		way = way->next;
+// 	}
+// 	return (length);
+// }
 
-void	realloc_ways(t_ways ***ways, t_way *way, int *size)
-{
-	t_ways	**tmp_ways;
-	int		i;
+// void	realloc_ways(t_ways ***ways, t_way *way, int *size)
+// {
+// 	t_ways	**tmp_ways;
+// 	int		i;
 
-	i = -1;
-	tmp_ways = (t_ways **)malloc(sizeof(t_ways *) * (*size + 1));
-	while (++i < *size)
-		tmp_ways[i] = (*ways)[i];
-	tmp_ways[i] = (t_ways *)malloc(sizeof(t_ways));
-	tmp_ways[i]->way = way;
-	tmp_ways[i]->length = way_length(way);
-	if (size > 0)
-		free(*ways);
-	(*size)++;
-	*ways = tmp_ways;
-}
+// 	i = -1;
+// 	tmp_ways = (t_ways **)malloc(sizeof(t_ways *) * (*size + 1));
+// 	while (++i < *size)
+// 		tmp_ways[i] = (*ways)[i];
+// 	tmp_ways[i] = (t_ways *)malloc(sizeof(t_ways));
+// 	tmp_ways[i]->way = way;
+// 	tmp_ways[i]->length = way_length(way);
+// 	if (size > 0)
+// 		free(*ways);
+// 	(*size)++;
+// 	*ways = tmp_ways;
+// }
 
-void	pushfront_way(t_way **way, t_room *room)
-{
-	t_way	*new;
+// void	pushfront_way(t_way **way, t_room *room)
+// {
+// 	t_way	*new;
 
-	new = (t_way *)malloc(sizeof(t_way));
-	new->room = room;
-	new->next = *way;
-	*way = new;
-}
+// 	new = (t_way *)malloc(sizeof(t_way));
+// 	new->room = room;
+// 	new->next = *way;
+// 	*way = new;
+// }
 
-t_way	*create_way(t_room *room)
-{
-	t_way	*way;
+// t_way	*create_way(t_room *room)
+// {
+// 	t_way	*way;
 
-	way = NULL;
-	pushfront_way(&way, room);
-	room = room->parent;
-	while (room && room->priority != START)
-	{
-		room->used = 1;
-		pushfront_way(&way, room);
-		room = room->parent;
-	}
-	pushfront_way(&way, room);
-	return (way);
-}
+// 	way = NULL;
+// 	pushfront_way(&way, room);
+// 	room = room->parent;
+// 	while (room && room->priority != START)
+// 	{
+// 		room->used = 1;
+// 		pushfront_way(&way, room);
+// 		room = room->parent;
+// 	}
+// 	pushfront_way(&way, room);
+// 	return (way);
+// }
 
-void	delete_end_link(t_room ***links, int *links_size)
-{
-	t_room	**new_links;
-	int		i;
+// void	delete_end_link(t_room ***links, int *links_size)
+// {
+// 	t_room	**new_links;
+// 	int		i;
 
-	new_links = (t_room **)malloc(sizeof(t_room *) * (*links_size - 1));
-	i = -1;
-	while (++i < *links_size && (*links)[i]->priority != END)
-		new_links[i] = (*links)[i];
-	while (++i < *links_size)
-		new_links[i - 1] = (*links)[i];
-	(*links_size)--;
-	free(*links);
-	*links = new_links;
-}
+// 	new_links = (t_room **)malloc(sizeof(t_room *) * (*links_size - 1));
+// 	i = -1;
+// 	while (++i < *links_size && (*links)[i]->priority != END)
+// 		new_links[i] = (*links)[i];
+// 	while (++i < *links_size)
+// 		new_links[i - 1] = (*links)[i];
+// 	(*links_size)--;
+// 	free(*links);
+// 	*links = new_links;
+// }
 
-t_ways	**generate_ways(t_str *s)
-{
-	t_ways	**ways;
-	t_queue	*queue;
-	int		size;
-	t_room	*end;
+// t_ways	**generate_ways(t_str *s)
+// {
+// 	t_ways	**ways;
+// 	t_queue	*queue;
+// 	int		size;
+// 	t_room	*end;
 
-	end = s->room;
-	while (end && end->priority != END)
-		end = end->next;
-	size = 0;
-	s->ways_size = 0;
-	queue = NULL;
-	ways = NULL;
-	enqueue(&queue, s->room);
-	while (BFS(&queue))
-	{
-		if (end->level == 1)
-			delete_end_link(&s->room->links, &s->room->links_size);
-		realloc_ways(&ways, create_way(end), &size);
-		clear_rooms(s->room);
-		while (queue)
-			dequeue(&queue);
-		enqueue(&queue, s->room);
-		s->ways_size++;
-	}
-	return (ways);
-}
+// 	end = s->room;
+// 	while (end && end->priority != END)
+// 		end = end->next;
+// 	size = 0;
+// 	s->ways_size = 0;
+// 	queue = NULL;
+// 	ways = NULL;
+// 	enqueue(&queue, s->room);
+// 	while (BFS(&queue))
+// 	{
+// 		if (end->level == 1)
+// 			delete_end_link(&s->room->links, &s->room->links_size);
+// 		realloc_ways(&ways, create_way(end), &size);
+// 		clear_rooms(s->room);
+// 		while (queue)
+// 			dequeue(&queue);
+// 		enqueue(&queue, s->room);
+// 		s->ways_size++;
+// 	}
+// 	return (ways);
+// }
 
-void	output(t_str *s)
-{
-	// t_list	*tmp;
+// void	output(t_str *s)
+// {
+// 	// t_list	*tmp;
 
-	// tmp = s->line_list;
-	// while (tmp)
-	// {
-	// 	if (is_command(tmp->content) || (!is_command(tmp->content) && ((char*)tmp->content)[0] != '#'))
-	// 		ft_putendl(tmp->content);
-	// 	tmp = tmp->next;
-	// }
+// 	// tmp = s->line_list;
+// 	// while (tmp)
+// 	// {
+// 	// 	if (is_command(tmp->content) || (!is_command(tmp->content) && ((char*)tmp->content)[0] != '#'))
+// 	// 		ft_putendl(tmp->content);
+// 	// 	tmp = tmp->next;
+// 	// }
 	
-	int i = -1;
-	t_way	*tmp2;
-	while (++i < s->ways_size)
-	{
-		printf("PATH no: %d\n", i + 1);
-		tmp2 = s->ways[i]->way;
-		while (tmp2)
-		{
-			ft_putendl(tmp2->room->name);
-			tmp2 = tmp2->next;
-		}
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
+// 	int i = -1;
+// 	t_way	*tmp2;
+// 	while (++i < s->ways_size)
+// 	{
+// 		printf("PATH no: %d\n", i + 1);
+// 		tmp2 = s->ways[i]->way;
+// 		while (tmp2)
+// 		{
+// 			ft_putendl(tmp2->room->name);
+// 			tmp2 = tmp2->next;
+// 		}
+// 	}
+// }
 
 //DFS
 
@@ -697,6 +685,60 @@ void	output(t_str *s)
 // 	return ;
 // }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// BFS_MOD
+
+void	BFS()
+{
+	
+}
+
+
+
+
 int			main(void)
 {
 	t_str	*s;
@@ -704,13 +746,14 @@ int			main(void)
 
 	s = (t_str*)malloc(sizeof(t_str));
 	err = parsing(s);
-	// DFS(s->room, &s->ways, &s->ways_size);
-	s->ways = generate_ways(s);
-	if (!s->ways)
-	{
-		error(err);
-		exit (0);
-	}
+	// s->ways = generate_ways(s);
+	// if (!s->ways)
+	// {
+	// 	error(err);
+	// 	exit (0);
+	// }
 	output(s);
+	while (1)
+		;
 	return (0);
 }
