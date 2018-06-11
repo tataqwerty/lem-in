@@ -26,12 +26,12 @@ typedef struct		s_room
 {
 	int				x;
 	int				y;
-	// int				level;
+	int				level;
 	int				links_size;
 	char			priority;
-	// char			used : 1;
-	// char			iq : 1;
-	// char			visited : 1;
+	char			used : 1;
+	char			iq : 1;
+	char			visited : 1;
 	char			*name;
 	struct s_room	*parent;
 	struct s_room	*next;
@@ -62,7 +62,7 @@ typedef struct
 
 typedef struct		s_queue
 {
-	t_way			*way;
+	t_room			*room;
 	struct s_queue	*next;
 }					t_queue;
 
