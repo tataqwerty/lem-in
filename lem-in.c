@@ -146,6 +146,7 @@ t_room		*init_room(char **arr, char priority)
 	new->used = 0;
 	new->iq = 0;
 	new->visited = 0;
+	new->ants = 0;
 	new->name = ft_strdup(arr[0]);
 	new->parent = NULL;
 	new->next = NULL;
@@ -373,7 +374,6 @@ char		parsing(t_str *s)
 
 	s->ants_counter = 0;
 	s->room = NULL;
-	s->ant = NULL;
 	lines_to_list(s);
 	tmp = s->line_list;
 	get_ants_counter(&s->ants_counter, &tmp);
@@ -516,14 +516,21 @@ void	remalloc_ways(t_ways ***ways, t_way *new_way, int *ways_size)
 	*ways = new_ways;
 }
 
-void	pushfront(t_way **way, t_room *room)
+void	pushback(t_way **way, t_room *room)
 {
-	t_way		*new;
+	t_way	*new;
+	t_way	*tmp;
 
 	new = (t_way *)malloc(sizeof(t_way));
-	new->next = *way;
+	new->next = NULL;
 	new->room = room;
-	*way = new;
+	tmp = *way;
+	while (tmp && tmp->next)
+		tmp = tmp->next;
+	if (!*way)
+		*way = new;
+	else
+		tmp->next = new;
 }
 
 t_way		*create_way(t_room *end_room)
@@ -531,15 +538,15 @@ t_way		*create_way(t_room *end_room)
 	t_way	*new_way;
 
 	new_way = NULL;
-	pushfront(&new_way, end_room);
+	pushback(&new_way, end_room);
 	end_room = end_room->parent;
 	while (end_room && end_room->priority != START)
 	{
-		pushfront(&new_way, end_room);
+		pushback(&new_way, end_room);
 		end_room->used = 1;
 		end_room = end_room->parent;
 	}
-	pushfront(&new_way, end_room);
+	pushback(&new_way, end_room);
 	return (new_way);
 }
 
@@ -582,9 +589,45 @@ void	generate_ways(t_str *s)
 	}
 }
 
+int		steps(int length, int ants)
+{
+	return (length + ants - 1);
+}
+
+void	send_ants(t_ways **ways, int ways_size, int *end_ants, int ants_counter)
+{
+	int		i;
+	t_way	*tmp;
+
+	i = -1;
+	while (++i < ways_size)
+	{
+		tmp = ways[i]->way;
+		while (tmp->next && tmp->next->room->priority != START)
+		{
+			if (tmp->next->room->ants > 0)
+			{		
+				printf("L%d-%s ", ants_counter++, tmp->room->name);
+				tmp->room->ants += tmp->next->room->ants;
+				tmp->next->room->ants = 0;
+			}
+				tmp = tmp->next;
+		}
+		if (ways[i]->length <= steps(ways[0]->length, tmp->next->room->ants) && tmp->next->room->ants > 0)
+		{
+			tmp->next->room->ants--;
+			tmp->room->ants++;
+			printf("L%d-%s ", ants_counter++, tmp->room->name);
+		}
+	}
+	printf("\n");
+}
+
 void	output(t_str *s)
 {
 	t_list	*tmp;
+	t_room	*end;
+	int		i;
 
 	tmp = s->line_list;
 	while (tmp)
@@ -592,19 +635,22 @@ void	output(t_str *s)
 		ft_putendl(tmp->content);
 		tmp = tmp->next;
 	}
-	
-	int i = -1;
-	t_way	*tmp2;
-	while (++i < s->ways_size)
+	s->room->ants = s->ants_counter;
+	end = s->room;
+	while (end && end->priority != END)
+		end = end->next;
+	i = 1;
+	if (s->ways_size == 1 && s->ways[0]->length == 1)
 	{
-		printf("\nPATH no: %d\n", i + 1);
-		tmp2 = s->ways[i]->way;
-		while (tmp2)
-		{
-			ft_putendl(tmp2->room->name);
-			tmp2 = tmp2->next;
-		}
+		s->room->ants = 0;
+		end->ants = s->ants_counter;
+		while (i < s->ants_counter)
+			printf("L%d-%s ", i++, end->name);
+		printf("\n");
+		return ;
 	}
+	while (end->ants < s->ants_counter)
+		send_ants(s->ways, s->ways_size, &end->ants, i);
 }
 
 int			main(void)
@@ -617,6 +663,6 @@ int			main(void)
 	generate_ways(s);
 	if (!s->ways)
 		error(err);
-	// output(s);
+	output(s);
 	return (0);
 }

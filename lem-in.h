@@ -15,19 +15,13 @@
 # define ERROR_INVALID_LINK 10
 # define ERROR_INVALID_ORDER 11
 
-typedef	struct		s_ant
-{
-	int				counter;
-	char			*room_name;
-	struct s_ant	*next;
-}					t_ant;
-
 typedef struct		s_room
 {
 	int				x;
 	int				y;
 	int				level;
 	int				links_size;
+	int				ants;
 	char			priority;
 	char			used : 1;
 	char			iq : 1;
@@ -54,7 +48,6 @@ typedef struct
 {
 	int				ants_counter;
 	t_list			*line_list;
-	t_ant			*ant;
 	t_room			*room;
 	t_ways			**ways;
 	int				ways_size;
