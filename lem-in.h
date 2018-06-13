@@ -22,6 +22,7 @@ typedef struct		s_room
 	int				level;
 	int				links_size;
 	int				ants;
+	int				ant_id;
 	char			priority;
 	char			used : 1;
 	char			iq : 1;

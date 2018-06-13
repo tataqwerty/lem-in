@@ -147,6 +147,7 @@ t_room		*init_room(char **arr, char priority)
 	new->iq = 0;
 	new->visited = 0;
 	new->ants = 0;
+	new->ant_id = 0;
 	new->name = ft_strdup(arr[0]);
 	new->parent = NULL;
 	new->next = NULL;
@@ -384,8 +385,6 @@ char		parsing(t_str *s)
 	return (err);
 }
 
-// ALGORITHM
-
 void		enqueue(t_queue **queue, t_room *room)
 {
 	t_queue	*tmp;
@@ -594,63 +593,104 @@ int		steps(int length, int ants)
 	return (length + ants - 1);
 }
 
-void	send_ants(t_ways **ways, int ways_size, int *end_ants, int ants_counter)
+void	send_ants(t_ways **ways, int ways_size, int *ants_counter, char *flag)
 {
+	t_way	*way;
 	int		i;
-	t_way	*tmp;
 
 	i = -1;
 	while (++i < ways_size)
 	{
-		tmp = ways[i]->way;
-		while (tmp->next && tmp->next->room->priority != START)
+		way = ways[i]->way;
+		while (way->next && way->next->room->priority != START)
+			way = way->next;
+		if (ways[i]->length <= steps(ways[0]->length, way->next->room->ants)
+			&& way->next->room->ants > 0)
 		{
-			if (tmp->next->room->ants > 0)
-			{		
-				printf("L%d-%s ", ants_counter++, tmp->room->name);
-				tmp->room->ants += tmp->next->room->ants;
-				tmp->next->room->ants = 0;
-			}
-				tmp = tmp->next;
-		}
-		if (ways[i]->length <= steps(ways[0]->length, tmp->next->room->ants) && tmp->next->room->ants > 0)
-		{
-			tmp->next->room->ants--;
-			tmp->room->ants++;
-			printf("L%d-%s ", ants_counter++, tmp->room->name);
+			if (*flag)
+				ft_printf(" ");
+			*flag = 1;
+			ft_printf("L%d-%s", ++(*ants_counter), way->room->name);
+			way->room->ant_id = *ants_counter;
+			way->room->ants++;
+			way->next->room->ants--;
 		}
 	}
-	printf("\n");
+}
+
+void	bring_remaining_ants(t_ways **ways, int ways_size, char *flag)
+{
+	t_way	*way;
+	int		i;
+
+	i = -1;
+	while (++i < ways_size)
+	{
+		way = ways[i]->way;
+		while (way->next && way->next->room->priority != START)
+		{
+			if (way->next->room->ants > 0)
+			{
+				if (*flag)
+					ft_printf(" ");
+				*flag = 1;
+				ft_printf("L%d-%s", way->next->room->ant_id, way->room->name);
+				way->room->ant_id = way->next->room->ant_id;
+				way->next->room->ant_id = 0;
+				way->room->ants++;
+				way->next->room->ants--;
+			}
+			way = way->next;
+		}
+	}
+}
+
+void	print_steps(t_str *s, t_room *end)
+{
+	int		ants_counter;
+	char	flag;
+
+	flag = 0;
+	ants_counter = 0;
+	if (s->ways[0]->length == 1)
+	{
+		while (end->ants < s->ants_counter)
+		{
+			if (flag)
+				ft_printf(" ");
+			ft_printf("L%d-%s", ++end->ants, s->ways[0]->way->room->name);
+			flag = 1;
+			s->room->ants--;
+		}
+		ft_printf("\n");
+		return ;
+	}
+	while (end->ants < s->ants_counter)
+	{
+		flag = 0;
+		bring_remaining_ants(s->ways, s->ways_size, &flag);
+		send_ants(s->ways, s->ways_size, &ants_counter, &flag);
+		ft_printf("\n");
+	}
 }
 
 void	output(t_str *s)
 {
-	t_list	*tmp;
 	t_room	*end;
-	int		i;
+	t_list	*tmp_list;
 
-	tmp = s->line_list;
-	while (tmp)
+	tmp_list = s->line_list;
+	while (tmp_list)
 	{
-		ft_putendl(tmp->content);
-		tmp = tmp->next;
+		ft_putendl(tmp_list->content);
+		tmp_list = tmp_list->next;
 	}
+	ft_printf("\n");
 	s->room->ants = s->ants_counter;
 	end = s->room;
 	while (end && end->priority != END)
 		end = end->next;
-	i = 1;
-	if (s->ways_size == 1 && s->ways[0]->length == 1)
-	{
-		s->room->ants = 0;
-		end->ants = s->ants_counter;
-		while (i < s->ants_counter)
-			printf("L%d-%s ", i++, end->name);
-		printf("\n");
-		return ;
-	}
-	while (end->ants < s->ants_counter)
-		send_ants(s->ways, s->ways_size, &end->ants, i);
+	print_steps(s, end);
 }
 
 int			main(void)
