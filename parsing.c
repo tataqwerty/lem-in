@@ -12,7 +12,7 @@
 
 #include "lem_in.h"
 
-void		get_ants_counter(int *ants, t_list **list)
+void		get_ants_counter(unsigned int *ants, t_list **list)
 {
 	int		i;
 

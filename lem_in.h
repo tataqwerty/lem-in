@@ -6,7 +6,7 @@
 /*   By: tkiselev <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/06 10:29:18 by tkiselev          #+#    #+#             */
-/*   Updated: 2018/06/14 15:41:00 by tkiselev         ###   ########.fr       */
+/*   Updated: 2018/06/14 17:48:03 by tkiselev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ typedef struct		s_room
 	int				y;
 	int				level;
 	int				links_size;
-	int				ants;
+	unsigned int	ants;
 	int				ant_id;
 	char			priority;
 	char			used : 1;
@@ -53,13 +53,13 @@ typedef struct		s_way
 
 typedef struct
 {
-	int				length;
+	unsigned int	length;
 	t_way			*way;
 }					t_ways;
 
 typedef struct
 {
-	int				ants_counter;
+	unsigned int	ants_counter;
 	t_list			*line_list;
 	t_room			*room;
 	t_ways			**ways;
@@ -84,14 +84,14 @@ void				add_room_with_command(t_room **room,
 char				apply_link(t_room ***links, t_room *room, int *size);
 char				connect_links(t_room *room1, t_room *room2);
 char				find_place_n_connect_links(t_room **head, char *link);
-void				get_ants_counter(int *ants, t_list **list);
+void				get_ants_counter(unsigned int *ants, t_list **list);
 void				get_rooms(t_str *s, t_list **list);
 char				get_links(t_str *s, t_list **list);
 char				parsing(t_str *s);
-void				send_ants(t_ways **ways, int ways_size,
-					int *ants_counter, char *flag);
+void				send_ants(t_ways **ways, unsigned int ways_size,
+					unsigned int *ants_counter, char *flag);
 void				bring_remaining_ants(t_ways **ways,
-					int ways_size, char *flag);
+					unsigned int ways_size, char *flag);
 void				print_steps(t_str *s, t_room *end);
 void				output(t_str *s);
 void				delete_ways(t_ways ***ways, int *ways_size);
@@ -104,7 +104,7 @@ void				enqueue(t_queue **queue, t_room *room);
 void				dequeue(t_queue **queue);
 t_room				*get_room_from_queue(t_queue *queue, t_room *room_to_find);
 char				bfs(t_queue **queue);
-int					length_way(t_way *way);
+unsigned int		length_way(t_way *way);
 void				clear_rooms(t_room *room);
 void				find_and_delete_list(t_list *main_list, t_list *tmp);
 void				lines_to_list(t_str *s);

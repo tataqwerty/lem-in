@@ -12,7 +12,8 @@
 
 #include "lem_in.h"
 
-void	send_ants(t_ways **ways, int ways_size, int *ants_counter, char *flag)
+void	send_ants(t_ways **ways, unsigned int ways_size,
+		unsigned int *ants_counter, char *flag)
 {
 	t_way	*way;
 	int		i;
@@ -37,7 +38,7 @@ void	send_ants(t_ways **ways, int ways_size, int *ants_counter, char *flag)
 	}
 }
 
-void	bring_remaining_ants(t_ways **ways, int ways_size, char *flag)
+void	bring_remaining_ants(t_ways **ways, unsigned int ways_size, char *flag)
 {
 	t_way	*way;
 	int		i;

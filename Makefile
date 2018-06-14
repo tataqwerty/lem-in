@@ -6,23 +6,36 @@
 #    By: tkiselev <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/06/14 15:41:10 by tkiselev          #+#    #+#              #
-#    Updated: 2018/06/14 16:31:07 by tkiselev         ###   ########.fr        #
+#    Updated: 2018/06/14 17:48:16 by tkiselev         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 LEM_IN=lem-in
-LIB=libft.a
+LIB=libftprintf.a
 CC_FLAGS=-Wall -Wextra -Werror
 SRCS=algorithm.c generate_ways.c is_functions.c links.c main.c output.c \
 	 parsing.c rooms.c staff.c
-OBJ=$(patsubst %, %.o, $(basename $(SRCS)))
+OBJ=$(SRCS:.c=.o)
 HEADER=lem_in.h
 LIB_DIR=libft
 
-all: $(LEM_IN)
+all: $(LIB) $(LEM_IN)
 
-$(LEM_IN): $(OBJ) $(LIB)
+$(LEM_IN): $(OBJ) $(HEADER)
 	gcc $(CC_FLAGS) -o $(LEM_IN) $(OBJ) $(LIB_DIR)/$(LIB)
 
 $(LIB):
-	make -c $(LIB_DIR)
+	make -C $(LIB_DIR)
+
+%.o: %.c
+	gcc -c $(CC_FLAGS) $< -o $@
+
+clean:
+	make -C $(LIB_DIR) clean
+	rm -f *.o
+
+fclean: clean
+	make -C $(LIB_DIR) fclean
+	rm -f $(LEM_IN)
+
+re: fclean all

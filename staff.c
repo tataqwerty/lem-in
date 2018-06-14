@@ -12,7 +12,7 @@
 
 #include "lem_in.h"
 
-void		error(char error)
+void			error(char error)
 {
 	ft_putstr("Error: ");
 	if (error == ERROR_INVALID_FILE)
@@ -38,9 +38,9 @@ void		error(char error)
 	exit(0);
 }
 
-void		lines_to_list(t_str *s)
+void			lines_to_list(t_str *s)
 {
-	char	*line;
+	char		*line;
 
 	line = NULL;
 	s->line_list = NULL;
@@ -51,9 +51,9 @@ void		lines_to_list(t_str *s)
 	}
 }
 
-void		find_and_delete_list(t_list *main_list, t_list *tmp)
+void			find_and_delete_list(t_list *main_list, t_list *tmp)
 {
-	t_list	*next;
+	t_list		*next;
 
 	while (main_list->next && main_list->next != tmp)
 		main_list = main_list->next;
@@ -69,7 +69,7 @@ void		find_and_delete_list(t_list *main_list, t_list *tmp)
 	}
 }
 
-void		clear_rooms(t_room *room)
+void			clear_rooms(t_room *room)
 {
 	while (room)
 	{
@@ -80,9 +80,9 @@ void		clear_rooms(t_room *room)
 	}
 }
 
-int			length_way(t_way *way)
+unsigned int	length_way(t_way *way)
 {
-	int		l;
+	int			l;
 
 	l = -1;
 	while (way)
