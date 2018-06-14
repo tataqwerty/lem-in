@@ -88,10 +88,10 @@ void				get_ants_counter(unsigned int *ants, t_list **list);
 void				get_rooms(t_str *s, t_list **list);
 char				get_links(t_str *s, t_list **list);
 char				parsing(t_str *s);
-void				send_ants(t_ways **ways, unsigned int ways_size,
+void				send_ants(t_ways **ways, int ways_size,
 					unsigned int *ants_counter, char *flag);
 void				bring_remaining_ants(t_ways **ways,
-					unsigned int ways_size, char *flag);
+					int ways_size, char *flag);
 void				print_steps(t_str *s, t_room *end);
 void				output(t_str *s);
 void				delete_ways(t_ways ***ways, int *ways_size);
