@@ -6,7 +6,7 @@
 #    By: tkiselev <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/06/14 15:41:10 by tkiselev          #+#    #+#              #
-#    Updated: 2018/06/14 17:48:16 by tkiselev         ###   ########.fr        #
+#    Updated: 2018/06/15 19:40:35 by tkiselev         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,7 @@ $(LIB):
 
 clean:
 	make -C $(LIB_DIR) clean
-	rm -f *.o
+	rm -f $(OBJ)
 
 fclean: clean
 	make -C $(LIB_DIR) fclean

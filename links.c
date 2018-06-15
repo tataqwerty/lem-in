@@ -12,7 +12,7 @@
 
 #include "lem_in.h"
 
-char		apply_link(t_room ***links, t_room *room, int *size)
+void		apply_link(t_room ***links, t_room *room, int *size)
 {
 	t_room	**new_arr;
 	int		i;
@@ -21,7 +21,7 @@ char		apply_link(t_room ***links, t_room *room, int *size)
 	while (++i < *size)
 	{
 		if (ft_strequ((*links)[i]->name, room->name))
-			return (0);
+			return ;
 	}
 	new_arr = (t_room **)malloc(sizeof(t_room *) * (*size + 1));
 	i = -1;
@@ -32,18 +32,14 @@ char		apply_link(t_room ***links, t_room *room, int *size)
 		free(*links);
 	*size += 1;
 	*links = new_arr;
-	return (0);
 }
 
 char		connect_links(t_room *room1, t_room *room2)
 {
-	char	error;
-
 	if (!room1 || !room2 || ft_strequ(room1->name, room2->name))
 		return (ERROR_INVALID_LINK);
-	if ((error = apply_link(&room1->links, room2, &room1->links_size)) != 0 ||
-		(error = apply_link(&room2->links, room1, &room2->links_size)) != 0)
-		return (error);
+	apply_link(&room1->links, room2, &room1->links_size);
+	apply_link(&room2->links, room1, &room2->links_size);
 	return (0);
 }
 

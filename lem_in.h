@@ -16,7 +16,6 @@
 # include "libft/libft.h"
 # define START 1
 # define END 2
-# define ERROR_HZ -1
 # define ERROR_INVALID_FILE 3
 # define ERROR_INVALID_QUANTITY_OF_ANTS 4
 # define ERROR_WITH_ROOM 5
@@ -26,6 +25,10 @@
 # define ERROR_NOT_ENOUGH_INFO 9
 # define ERROR_INVALID_LINK 10
 # define ERROR_INVALID_ORDER 11
+# define ERROR_NO_ANTS 12
+# define ERROR_WITH_START_ROOM 13
+# define ERROR_WITH_END_ROOM 14
+# define ERROR_NO_SOLUTION 15
 
 typedef struct		s_room
 {
@@ -81,7 +84,7 @@ void				room_push_back(t_room **room, char **arr, char priority);
 void				add_room(t_room **room, char *str, char priority);
 void				add_room_with_command(t_room **room,
 					t_list **list, char *flag);
-char				apply_link(t_room ***links, t_room *room, int *size);
+void				apply_link(t_room ***links, t_room *room, int *size);
 char				connect_links(t_room *room1, t_room *room2);
 char				find_place_n_connect_links(t_room **head, char *link);
 void				get_ants_counter(unsigned int *ants, t_list **list);
@@ -109,4 +112,5 @@ void				clear_rooms(t_room *room);
 void				find_and_delete_list(t_list *main_list, t_list *tmp);
 void				lines_to_list(t_str *s);
 void				error(char error);
+void				skip_comments(t_list **list);
 #endif

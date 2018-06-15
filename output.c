@@ -12,11 +12,33 @@
 
 #include "lem_in.h"
 
+void				error(char error)
+{
+	ft_putstr("Error: ");
+	error == ERROR_INVALID_FILE ? ft_putstr("invalid file.\n") : 0;
+	error == ERROR_INVALID_QUANTITY_OF_ANTS ?
+		ft_putstr("invalid quantity of ants.\n") : 0;
+	error == ERROR_WITH_ROOM ? ft_putstr("not a valid room.\n") : 0;
+	error == ERROR_NOT_UNIQUE_ROOM ? ft_putstr("not unique room.\n") : 0;
+	error == ERROR_SECOND_START ? ft_putstr("several starts.\n") : 0;
+	error == ERROR_SECOND_END ? ft_putstr("several ends.\n") : 0;
+	error == ERROR_NOT_ENOUGH_INFO ?
+		ft_putstr("not enough information.\n") : 0;
+	error == ERROR_INVALID_LINK ? ft_putstr("invalid link.\n") : 0;
+	error == ERROR_INVALID_ORDER ? ft_putstr("invalid order.\n") : 0;
+	error == ERROR_NO_ANTS ? ft_putstr("no ants.\n") : 0;
+	error == ERROR_WITH_START_ROOM ?
+		ft_putstr("with room after ##start.\n") : 0;
+	error == ERROR_WITH_END_ROOM ? ft_putstr("with room after ##end.\n") : 0;
+	error == ERROR_NO_SOLUTION ? ft_putstr("no solution.\n") : 0;
+	exit(0);
+}
+
 void				send_ants(t_ways **ways, int ways_size,
 					unsigned int *ants_counter, char *flag)
 {
-	t_way	*way;
-	int		i;
+	t_way			*way;
+	int				i;
 
 	i = -1;
 	while (++i < ways_size)
@@ -41,8 +63,8 @@ void				send_ants(t_ways **ways, int ways_size,
 void				bring_remaining_ants(t_ways **ways, int ways_size,
 					char *flag)
 {
-	t_way	*way;
-	int		i;
+	t_way			*way;
+	int				i;
 
 	i = -1;
 	while (++i < ways_size)
@@ -97,8 +119,8 @@ void				print_steps(t_str *s, t_room *end)
 
 void				output(t_str *s)
 {
-	t_room	*end;
-	t_list	*tmp_list;
+	t_room			*end;
+	t_list			*tmp_list;
 
 	tmp_list = s->line_list;
 	while (tmp_list)

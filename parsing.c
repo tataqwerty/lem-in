@@ -25,11 +25,12 @@ void		get_ants_counter(unsigned int *ants, t_list **list)
 		else if (is_command((*list)->content))
 			error(ERROR_INVALID_ORDER);
 		else if (((char*)(*list)->content)[0] != '#')
-			error(ERROR_INVALID_FILE);
+			error((((char*)(*list)->content)[0] == '-') ?
+				ERROR_INVALID_QUANTITY_OF_ANTS : ERROR_NO_ANTS);
 		*list = (*list)->next;
 	}
 	if (!*list)
-		error(ERROR_INVALID_QUANTITY_OF_ANTS);
+		error(ERROR_NO_ANTS);
 	while (((char*)(*list)->content)[i] != '\0' &&
 		((char*)(*list)->content)[i] >= '0' &&
 		((char*)(*list)->content)[i] <= '9')

@@ -21,7 +21,7 @@ int			main(void)
 	err = parsing(s);
 	generate_ways(s);
 	if (!s->ways)
-		error(err);
+		error((err == 0) ? ERROR_NO_SOLUTION : err);
 	output(s);
 	return (0);
 }

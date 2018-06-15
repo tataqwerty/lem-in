@@ -12,30 +12,18 @@
 
 #include "lem_in.h"
 
-void			error(char error)
+void			skip_comments(t_list **list)
 {
-	ft_putstr("Error: ");
-	if (error == ERROR_INVALID_FILE)
-		ft_putstr("invalid file.\n");
-	else if (error == ERROR_INVALID_QUANTITY_OF_ANTS)
-		ft_putstr("invalid quantity of ants.\n");
-	else if (error == ERROR_HZ)
-		ft_putstr("undefined error.\n");
-	else if (error == ERROR_WITH_ROOM)
-		ft_putstr("not valid room.\n");
-	else if (error == ERROR_NOT_UNIQUE_ROOM)
-		ft_putstr("not unique room.\n");
-	else if (error == ERROR_SECOND_START)
-		ft_putstr("several starts.\n");
-	else if (error == ERROR_SECOND_END)
-		ft_putstr("several ends.\n");
-	else if (error == ERROR_NOT_ENOUGH_INFO)
-		ft_putstr("not enough information.\n");
-	else if (error == ERROR_INVALID_LINK)
-		ft_putstr("invalid link.\n");
-	else if (error == ERROR_INVALID_ORDER)
-		ft_putstr("invalid order.\n");
-	exit(0);
+	while (*list)
+	{
+		if (is_command((*list)->content))
+			break ;
+		else if ((*list)->content_size >= 1 &&
+			((char*)(*list)->content)[0] == '#')
+			*list = (*list)->next;
+		else
+			break ;
+	}
 }
 
 void			lines_to_list(t_str *s)

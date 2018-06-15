@@ -102,19 +102,23 @@ void		add_room_with_command(t_room **room, t_list **list, char *flag)
 		if ((*flag & 1) == 1)
 			error(ERROR_SECOND_START);
 		*flag = *flag | 1;
-		if (!(*list = (*list)->next) || !is_room((*list)->content))
-			error(ERROR_WITH_ROOM);
+		if (!(*list = (*list)->next))
+			error(ERROR_WITH_START_ROOM);
+		skip_comments(list);
+		if (!(*list) || !is_room((*list)->content))
+			error(ERROR_WITH_START_ROOM);
 		else
 			add_room(room, (*list)->content, START);
+		return ;
 	}
-	else if (ft_strequ((*list)->content, "##end"))
-	{
-		if ((*flag & 2) == 2)
-			error(ERROR_SECOND_END);
-		*flag = *flag | 2;
-		if (!(*list = (*list)->next) || !is_room((*list)->content))
-			error(ERROR_WITH_ROOM);
-		else
-			add_room(room, (*list)->content, END);
-	}
+	if ((*flag & 2) == 2)
+		error(ERROR_SECOND_END);
+	*flag = *flag | 2;
+	if (!(*list = (*list)->next))
+		error(ERROR_WITH_END_ROOM);
+	skip_comments(list);
+	if (!(*list) || !is_room((*list)->content))
+		error(ERROR_WITH_END_ROOM);
+	else
+		add_room(room, (*list)->content, END);
 }
