@@ -17,6 +17,7 @@ t_room		*init_room(char **arr, char priority)
 	t_room	*new;
 
 	new = (t_room*)malloc(sizeof(t_room));
+	(!is_int(arr[1]) || !is_int(arr[2])) ? error(ERROR_WITH_ROOM) : 0;
 	new->x = ft_atoi(arr[1]);
 	new->y = ft_atoi(arr[2]);
 	new->level = 0;
@@ -85,9 +86,7 @@ void		add_room(t_room **room, char *str, char priority)
 			error(ERROR_NOT_UNIQUE_ROOM);
 		tmp = tmp->next;
 	}
-	if (priority == START)
-		room_push_front(room, arr, priority);
-	else
+	(priority == START) ? room_push_front(room, arr, priority) :
 		room_push_back(room, arr, priority);
 	y = -1;
 	while (arr[++y])
@@ -95,30 +94,28 @@ void		add_room(t_room **room, char *str, char priority)
 	free(arr);
 }
 
-void		add_room_with_command(t_room **room, t_list **list, char *flag)
+void		add_room_with_command(t_str *s, char **line, char *flag)
 {
-	if (ft_strequ((*list)->content, "##start"))
-	{
-		if ((*flag & 1) == 1)
-			error(ERROR_SECOND_START);
-		*flag = *flag | 1;
-		if (!(*list = (*list)->next))
-			error(ERROR_WITH_START_ROOM);
-		skip_comments(list);
-		if (!(*list) || !is_room((*list)->content))
-			error(ERROR_WITH_START_ROOM);
-		else
-			add_room(room, (*list)->content, START);
-		return ;
-	}
-	if ((*flag & 2) == 2)
-		error(ERROR_SECOND_END);
-	*flag = *flag | 2;
-	if (!(*list = (*list)->next))
-		error(ERROR_WITH_END_ROOM);
-	skip_comments(list);
-	if (!(*list) || !is_room((*list)->content))
-		error(ERROR_WITH_END_ROOM);
+	char	p;
+
+	p = (ft_strequ(*line, "##start")) ? 1 : 2;
+	if (p == START)
+		(*flag & 1) ? error(ERROR_SECOND_START) : 0;
 	else
-		add_room(room, (*list)->content, END);
+		(*flag & 2) ? error(ERROR_SECOND_END) : 0;
+	*flag = *flag | p;
+	ft_list_pushback(&s->line_list, *line);
+	ft_strdel(line);
+	while (get_next_line(0, line) > 0)
+	{
+		if (is_comment(*line))
+		{
+			ft_list_pushback(&s->line_list, *line);
+			ft_strdel(line);
+		}
+		else
+			break ;
+	}
+	(!is_room(*line)) ? error(ERROR_WITH_ROOM) : 0;
+	add_room(&s->room, *line, p);
 }

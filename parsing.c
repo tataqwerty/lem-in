@@ -12,96 +12,94 @@
 
 #include "lem_in.h"
 
-void		get_ants_counter(unsigned int *ants, t_list **list)
+void				get_ants_counter(unsigned int *counter, t_list **list)
 {
-	int		i;
+	int				i;
+	char			*line;
 
-	i = 0;
-	while (*list)
+	line = NULL;
+	while (get_next_line(0, &line) > 0)
 	{
-		if (((char*)(*list)->content)[0] >= '0'
-			&& ((char*)(*list)->content)[0] <= '9')
+		ft_list_pushback(list, line);
+		if (is_comment(line))
+			continue ;
+		else if (line[0] >= '0' && line[0] <= '9')
 			break ;
-		else if (is_command((*list)->content))
-			error(ERROR_INVALID_ORDER);
-		else if (((char*)(*list)->content)[0] != '#')
-			error((((char*)(*list)->content)[0] == '-') ?
-				ERROR_INVALID_QUANTITY_OF_ANTS : ERROR_NO_ANTS);
-		*list = (*list)->next;
+		else
+			error(ERROR_INVALID_QUANTITY_OF_ANTS);
+		ft_strdel(&line);
 	}
-	if (!*list)
-		error(ERROR_NO_ANTS);
-	while (((char*)(*list)->content)[i] != '\0' &&
-		((char*)(*list)->content)[i] >= '0' &&
-		((char*)(*list)->content)[i] <= '9')
-		*ants = *ants * 10 + ((char*)(*list)->content)[i++] - 48;
-	if (i == 0 || *ants == 0 || ((char*)(*list)->content)[i] != '\0')
-		error(ERROR_INVALID_QUANTITY_OF_ANTS);
-	*list = (*list)->next;
+	(!line) ? error(ERROR_INVALID_QUANTITY_OF_ANTS) : 0;
+	i = 0;
+	while (line[i] && line[i] >= '0' && line[i] <= '9')
+	{
+		if ((*counter == 429496729 && line[i] >= '6') || *counter > 429496729)
+			error(ERROR_INVALID_QUANTITY_OF_ANTS);
+		*counter = *counter * 10 + line[i++] - '0';
+	}
+	(line[i] != '\0') ? error(ERROR_INVALID_QUANTITY_OF_ANTS) : 0;
+	ft_strdel(&line);
 }
 
-void		get_rooms(t_str *s, t_list **list)
+char				get_links(t_str *s, char *line)
 {
-	char	flag;
-
-	flag = 0;
-	while (*list)
+	while (line)
 	{
-		if (is_room((*list)->content))
-			add_room(&s->room, (*list)->content, 0);
-		else if (is_command((*list)->content))
-			add_room_with_command(&s->room, list, &flag);
-		else if (is_link((*list)->content))
+		if (is_link(line))
 		{
-			if (flag != 3)
-				error(ERROR_NOT_ENOUGH_INFO);
-			else
-				return ;
+			if (!find_place_n_connect_links(&s->room, line))
+			{
+				ft_strdel(&line);
+				return (ERROR_INVALID_LINK);
+			}
 		}
-		else if (((char*)(*list)->content)[0] != '#')
-			error(ERROR_INVALID_FILE);
-		*list = (*list)->next;
-	}
-	error(ERROR_NOT_ENOUGH_INFO);
-}
-
-char		get_links(t_str *s, t_list **list)
-{
-	char	error;
-
-	if ((error = find_place_n_connect_links(&s->room, (*list)->content)) != 0)
-		return (error);
-	*list = (*list)->next;
-	while (*list)
-	{
-		if (is_link((*list)->content))
+		else if (!is_comment(line))
 		{
-			if ((error = find_place_n_connect_links(&s->room,
-				(*list)->content)) != 0)
-				return (error);
-		}
-		else if (((char*)(*list)->content)[0] != '#')
+			ft_strdel(&line);
 			return (ERROR_INVALID_ORDER);
-		*list = (*list)->next;
+		}
+		ft_list_pushback(&s->line_list, line);
+		ft_strdel(&line);
+		get_next_line(0, &line);
 	}
 	return (0);
 }
 
-char		parsing(t_str *s)
+char				get_rooms_and_links(t_str *s)
 {
-	t_list	*tmp;
-	char	err;
+	char			flag;
+	char			*line;
+
+	flag = 0;
+	line = NULL;
+	while (get_next_line(0, &line) > 0)
+	{
+		if (is_room(line))
+			add_room(&s->room, line, 0);
+		else if (is_command(line))
+			add_room_with_command(s, &line, &flag);
+		else if (is_link(line))
+		{
+			(flag != 3) ? error(ERROR_NOT_ENOUGH_INFO) : 0;
+			return (get_links(s, line));
+		}
+		else if (line[0] != '#')
+			error(ERROR_INVALID_FILE);
+		ft_list_pushback(&s->line_list, line);
+		ft_strdel(&line);
+	}
+	error(ERROR_NOT_ENOUGH_INFO);
+	return (0);
+}
+
+char				parsing(t_str *s)
+{
+	char			err;
 
 	s->ants_counter = 0;
 	s->room = NULL;
-	lines_to_list(s);
-	tmp = s->line_list;
-	if (!tmp)
-		error(ERROR_INVALID_FILE);
-	get_ants_counter(&s->ants_counter, &tmp);
-	get_rooms(s, &tmp);
-	err = get_links(s, &tmp);
-	if (err != 0)
-		find_and_delete_list(s->line_list, tmp);
+	s->line_list = NULL;
+	get_ants_counter(&s->ants_counter, &s->line_list);
+	err = get_rooms_and_links(s);
 	return (err);
 }

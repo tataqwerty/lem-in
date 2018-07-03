@@ -34,15 +34,6 @@ void		apply_link(t_room ***links, t_room *room, int *size)
 	*links = new_arr;
 }
 
-char		connect_links(t_room *room1, t_room *room2)
-{
-	if (!room1 || !room2 || ft_strequ(room1->name, room2->name))
-		return (ERROR_INVALID_LINK);
-	apply_link(&room1->links, room2, &room1->links_size);
-	apply_link(&room2->links, room1, &room2->links_size);
-	return (0);
-}
-
 char		find_place_n_connect_links(t_room **head, char *link)
 {
 	char	**arr;
@@ -53,21 +44,17 @@ char		find_place_n_connect_links(t_room **head, char *link)
 	tmp1 = *head;
 	tmp2 = *head;
 	arr = ft_strsplit(link, '-');
-	while (tmp1)
-	{
-		if (ft_strequ(tmp1->name, arr[0]))
-			break ;
+	while (tmp1 && ft_strequ(tmp1->name, arr[0]) == 0)
 		tmp1 = tmp1->next;
-	}
-	while (tmp2)
-	{
-		if (ft_strequ(tmp2->name, arr[1]))
-			break ;
+	while (tmp2 && ft_strequ(tmp2->name, arr[1]) == 0)
 		tmp2 = tmp2->next;
-	}
 	i = 0;
 	while (arr[i])
 		free(arr[i++]);
 	free(arr);
-	return (connect_links(tmp1, tmp2));
+	if (!tmp1 || !tmp2 || ft_strequ(tmp1->name, tmp2->name))
+		return (0);
+	apply_link(&tmp1->links, tmp2, &tmp1->links_size);
+	apply_link(&tmp2->links, tmp1, &tmp2->links_size);
+	return (1);
 }

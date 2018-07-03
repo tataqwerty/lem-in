@@ -78,18 +78,19 @@ typedef struct		s_queue
 char				is_command(char *str);
 char				is_room(char *str);
 char				is_link(char *str);
+char				is_comment(char *str);
+char				is_int(char *str);
 t_room				*init_room(char **arr, char priority);
 void				room_push_front(t_room **room, char **arr, char priority);
 void				room_push_back(t_room **room, char **arr, char priority);
 void				add_room(t_room **room, char *str, char priority);
-void				add_room_with_command(t_room **room,
-					t_list **list, char *flag);
+void				add_room_with_command(t_str *s, char **line, char *flag);
 void				apply_link(t_room ***links, t_room *room, int *size);
 char				connect_links(t_room *room1, t_room *room2);
 char				find_place_n_connect_links(t_room **head, char *link);
-void				get_ants_counter(unsigned int *ants, t_list **list);
-void				get_rooms(t_str *s, t_list **list);
-char				get_links(t_str *s, t_list **list);
+void				get_ants_counter(unsigned int *counter, t_list **list);
+char				get_rooms_and_links(t_str *s);
+char				get_links(t_str *s, char *line);
 char				parsing(t_str *s);
 void				send_ants(t_ways **ways, int ways_size,
 					unsigned int *ants_counter, char *flag);
