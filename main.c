@@ -23,5 +23,6 @@ int			main(void)
 	if (!s->ways)
 		error((err == 0) ? ERROR_NO_SOLUTION : err);
 	output(s);
+	system("leaks lem-in");
 	return (0);
 }

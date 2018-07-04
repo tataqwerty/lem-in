@@ -12,52 +12,24 @@
 
 #include "lem_in.h"
 
-void			skip_comments(t_list **list)
+void		error(char error)
 {
-	while (*list)
-	{
-		if (is_command((*list)->content))
-			break ;
-		else if ((*list)->content_size >= 1 &&
-			((char*)(*list)->content)[0] == '#')
-			*list = (*list)->next;
-		else
-			break ;
-	}
+	ft_putstr("Error: ");
+	error == ERROR_INVALID_FILE ? ft_putstr("invalid file.\n") : 0;
+	error == ERROR_INVALID_QUANTITY_OF_ANTS ?
+		ft_putstr("invalid quantity of ants.\n") : 0;
+	error == ERROR_WITH_ROOM ? ft_putstr("not a valid room.\n") : 0;
+	error == ERROR_NOT_UNIQUE_ROOM ? ft_putstr("not unique room.\n") : 0;
+	error == ERROR_SECOND_START ? ft_putstr("several starts.\n") : 0;
+	error == ERROR_SECOND_END ? ft_putstr("several ends.\n") : 0;
+	error == ERROR_NOT_ENOUGH_INFO ?
+		ft_putstr("not enough information.\n") : 0;
+	error == ERROR_INVALID_LINK ? ft_putstr("invalid link.\n") : 0;
+	error == ERROR_NO_SOLUTION ? ft_putstr("no solution.\n") : 0;
+	exit(0);
 }
 
-void			lines_to_list(t_str *s)
-{
-	char		*line;
-
-	line = NULL;
-	s->line_list = NULL;
-	while (get_next_line(0, &line) > 0)
-	{
-		ft_list_pushback(&s->line_list, line);
-		free(line);
-	}
-}
-
-void			find_and_delete_list(t_list *main_list, t_list *tmp)
-{
-	t_list		*next;
-
-	while (main_list->next && main_list->next != tmp)
-		main_list = main_list->next;
-	if (!main_list->next)
-		return ;
-	while (main_list->next)
-	{
-		next = main_list->next->next;
-		free(main_list->next->content);
-		main_list->next->content = NULL;
-		free(main_list->next);
-		main_list->next = next;
-	}
-}
-
-void			clear_rooms(t_room *room)
+void		clear_rooms(t_room *room)
 {
 	while (room)
 	{
@@ -68,9 +40,9 @@ void			clear_rooms(t_room *room)
 	}
 }
 
-int				length_way(t_way *way)
+int			length_way(t_way *way)
 {
-	int			l;
+	int		l;
 
 	l = -1;
 	while (way)

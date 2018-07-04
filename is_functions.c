@@ -12,8 +12,10 @@
 
 #include "lem_in.h"
 
-char	is_command(char *str)
+char		is_command(char *str)
 {
+	if (!str)
+		return (0);
 	if (ft_strequ(str, "##start") || ft_strequ(str, "##end"))
 		return (1);
 	return (0);
@@ -63,30 +65,32 @@ char		is_link(char *s)
 	return (1);
 }
 
-char	is_comment(char *str)
+char		is_comment(char *str)
 {
-	if (is_command(str))
+	if (!str || is_command(str))
 		return (0);
 	else if (str[0] == '#')
 		return (1);
 	return (0);
 }
 
-char	is_int(char *str)
+char		is_int(char *str)
 {
 	int		res;
 	int		i;
 
+	if (!str)
+		return (0);
 	res = 0;
 	i = 0;
 	if (ft_strequ(str, "-2147483648"))
 		return (1);
-	(str[0] == '-' || str[0] == '+') ? i++ : 0;
+	(str[0] == '-' || str[0] == '+') ? str++ : 0;
 	while (str[i] >= '0' && str[i] <= '9')
 	{
 		if ((res == 214748364 && str[i] >= '8') || res > 214748365)
 			return (0);
 		res = res * 10 + str[i++] - '0';
 	}
-	return (1);
+	return ((i > 0 && str[i] == '\0') ? 1 : 0);
 }

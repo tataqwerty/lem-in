@@ -24,11 +24,7 @@
 # define ERROR_SECOND_END 8
 # define ERROR_NOT_ENOUGH_INFO 9
 # define ERROR_INVALID_LINK 10
-# define ERROR_INVALID_ORDER 11
-# define ERROR_NO_ANTS 12
-# define ERROR_WITH_START_ROOM 13
-# define ERROR_WITH_END_ROOM 14
-# define ERROR_NO_SOLUTION 15
+# define ERROR_NO_SOLUTION 11
 
 typedef struct		s_room
 {
@@ -88,9 +84,9 @@ void				add_room_with_command(t_str *s, char **line, char *flag);
 void				apply_link(t_room ***links, t_room *room, int *size);
 char				connect_links(t_room *room1, t_room *room2);
 char				find_place_n_connect_links(t_room **head, char *link);
-void				get_ants_counter(int *counter, t_list **list);
-char				get_rooms_and_links(t_str *s);
-char				get_links(t_str *s, char *line);
+void				get_ants_counter(int *counter, t_list **list, char *line);
+void				get_rooms(t_str *s, char **line);
+char				get_links(t_str *s, char **line);
 char				parsing(t_str *s);
 void				send_ants(t_ways **ways, int ways_size,
 					int *ants_counter, char *flag);
@@ -98,7 +94,6 @@ void				bring_remaining_ants(t_ways **ways,
 					int ways_size, char *flag);
 void				print_steps(t_str *s, t_room *end);
 void				output(t_str *s);
-void				delete_ways(t_ways ***ways, int *ways_size);
 void				remalloc_ways(t_ways ***ways,
 					t_way *new_way, int *ways_size);
 void				pushback(t_way **way, t_room *room);
@@ -110,8 +105,5 @@ t_room				*get_room_from_queue(t_queue *queue, t_room *room_to_find);
 char				bfs(t_queue **queue);
 int					length_way(t_way *way);
 void				clear_rooms(t_room *room);
-void				find_and_delete_list(t_list *main_list, t_list *tmp);
-void				lines_to_list(t_str *s);
 void				error(char error);
-void				skip_comments(t_list **list);
 #endif

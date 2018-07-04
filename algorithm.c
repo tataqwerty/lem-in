@@ -18,13 +18,8 @@ void		enqueue(t_queue **queue, t_room *room)
 	t_queue	*new;
 
 	tmp = *queue;
-	while (tmp)
-	{
-		if (tmp->next)
-			tmp = tmp->next;
-		else
-			break ;
-	}
+	while (tmp && tmp->next)
+		tmp = tmp->next;
 	new = (t_queue *)malloc(sizeof(t_queue));
 	new->next = NULL;
 	new->room = room;

@@ -12,31 +12,6 @@
 
 #include "lem_in.h"
 
-void		delete_ways(t_ways ***ways, int *ways_size)
-{
-	t_way	*next;
-	t_way	*current;
-	int		i;
-
-	i = -1;
-	while (++i < *ways_size)
-	{
-		current = (*ways)[i]->way;
-		while (current)
-		{
-			next = current->next;
-			free(current);
-			current = next;
-		}
-		free((*ways)[i]);
-		(*ways)[i] = NULL;
-	}
-	if (*ways_size > 0)
-		free(*ways);
-	*ways = NULL;
-	*ways_size = 0;
-}
-
 void		remalloc_ways(t_ways ***ways, t_way *new_way, int *ways_size)
 {
 	t_ways	**new_ways;
@@ -103,16 +78,12 @@ void		generate_ways(t_str *s)
 		end_room = end_room->next;
 	while (bfs(&queue))
 	{
-		if (end_room->level == 1)
-		{
-			delete_ways(&s->ways, &s->ways_size);
-			remalloc_ways(&s->ways, create_way(end_room), &s->ways_size);
-			return ;
-		}
-		remalloc_ways(&s->ways, create_way(end_room), &s->ways_size);
-		clear_rooms(s->room);
 		while (queue)
 			dequeue(&queue);
+		remalloc_ways(&s->ways, create_way(end_room), &s->ways_size);
+		if (end_room->level == 1)
+			return ;
+		clear_rooms(s->room);
 		enqueue(&queue, s->room);
 	}
 }
