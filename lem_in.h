@@ -36,7 +36,7 @@ typedef struct		s_room
 	int				y;
 	int				level;
 	int				links_size;
-	unsigned int	ants;
+	int				ants;
 	int				ant_id;
 	char			priority;
 	char			used : 1;
@@ -56,13 +56,13 @@ typedef struct		s_way
 
 typedef struct
 {
-	unsigned int	length;
+	int				length;
 	t_way			*way;
 }					t_ways;
 
 typedef struct
 {
-	unsigned int	ants_counter;
+	int				ants_counter;
 	t_list			*line_list;
 	t_room			*room;
 	t_ways			**ways;
@@ -88,12 +88,12 @@ void				add_room_with_command(t_str *s, char **line, char *flag);
 void				apply_link(t_room ***links, t_room *room, int *size);
 char				connect_links(t_room *room1, t_room *room2);
 char				find_place_n_connect_links(t_room **head, char *link);
-void				get_ants_counter(unsigned int *counter, t_list **list);
+void				get_ants_counter(int *counter, t_list **list);
 char				get_rooms_and_links(t_str *s);
 char				get_links(t_str *s, char *line);
 char				parsing(t_str *s);
 void				send_ants(t_ways **ways, int ways_size,
-					unsigned int *ants_counter, char *flag);
+					int *ants_counter, char *flag);
 void				bring_remaining_ants(t_ways **ways,
 					int ways_size, char *flag);
 void				print_steps(t_str *s, t_room *end);
@@ -108,7 +108,7 @@ void				enqueue(t_queue **queue, t_room *room);
 void				dequeue(t_queue **queue);
 t_room				*get_room_from_queue(t_queue *queue, t_room *room_to_find);
 char				bfs(t_queue **queue);
-unsigned int		length_way(t_way *way);
+int					length_way(t_way *way);
 void				clear_rooms(t_room *room);
 void				find_and_delete_list(t_list *main_list, t_list *tmp);
 void				lines_to_list(t_str *s);

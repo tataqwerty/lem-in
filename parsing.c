@@ -12,32 +12,20 @@
 
 #include "lem_in.h"
 
-void				get_ants_counter(unsigned int *counter, t_list **list)
+void				get_ants_counter(int *counter, t_list **list)
 {
-	int				i;
 	char			*line;
 
 	line = NULL;
-	while (get_next_line(0, &line) > 0)
+	while (get_next_line(0, &line) > 0 && is_comment(line))
 	{
 		ft_list_pushback(list, line);
-		if (is_comment(line))
-			continue ;
-		else if (line[0] >= '0' && line[0] <= '9')
-			break ;
-		else
-			error(ERROR_INVALID_QUANTITY_OF_ANTS);
 		ft_strdel(&line);
 	}
-	(!line) ? error(ERROR_INVALID_QUANTITY_OF_ANTS) : 0;
-	i = 0;
-	while (line[i] && line[i] >= '0' && line[i] <= '9')
-	{
-		if ((*counter == 429496729 && line[i] >= '6') || *counter > 429496729)
-			error(ERROR_INVALID_QUANTITY_OF_ANTS);
-		*counter = *counter * 10 + line[i++] - '0';
-	}
-	(line[i] != '\0') ? error(ERROR_INVALID_QUANTITY_OF_ANTS) : 0;
+	(!is_int(line)) ? error(ERROR_INVALID_QUANTITY_OF_ANTS) : 0;
+	*counter = ft_atoi(line);
+	(*counter <= 0) ? error(ERROR_INVALID_QUANTITY_OF_ANTS) : 0;
+	ft_list_pushback(list, line);
 	ft_strdel(&line);
 }
 

@@ -34,8 +34,8 @@ void				error(char error)
 	exit(0);
 }
 
-void				send_ants(t_ways **ways, int ways_size,
-					unsigned int *ants_counter, char *flag)
+void				send_ants(t_ways **ways, int ways_size,int *ants_counter,
+					char *flag)
 {
 	t_way			*way;
 	int				i;
@@ -90,7 +90,7 @@ void				bring_remaining_ants(t_ways **ways, int ways_size,
 
 void				print_steps(t_str *s, t_room *end)
 {
-	unsigned int	ants_counter;
+	int				ants_counter;
 	char			flag;
 
 	flag = 0;

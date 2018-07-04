@@ -19,34 +19,31 @@ char	is_command(char *str)
 	return (0);
 }
 
-char	is_room(char *str)
+char		is_room(char *str)
 {
-	char	flag;
+	char	**arr;
 	int		i;
+	char	flag;
 
-	if (!str || str[0] == 'L' || str[0] == '#')
+	if (!str || !(arr = ft_strsplit(str, ' ')))
 		return (0);
-	flag = 0;
 	i = 0;
-	while (str[i] != '\0' && str[i] > 32 && str[i] < 127
-		&& str[i] != '-' && (flag = 1))
-		i++;
-	if (flag != 1 || str[i++] != ' ')
-		return (0);
-	(str[i] == '-' || str[i] == '+') ? i++ : 0;
-	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9' && (flag = 2))
-		i++;
-	if (flag != 2 || str[i++] != ' ')
-		return (0);
-	(str[i] == '-' || str[i] == '+') ? i++ : 0;
-	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9' && (flag = 3))
-		i++;
-	if (flag != 3 || str[i] != '\0')
-		return (0);
-	return (1);
+	flag = 1;
+	while (arr[i])
+	{
+		if (i == 0 && (arr[i][0] == 'L' || arr[i][0] == '#'
+			|| ft_strchr(arr[i], '-')))
+			flag = 0;
+		else if ((i == 1 || i == 2) && !is_int(arr[i]))
+			flag = 0;
+		free(arr[i++]);
+	}
+	free(arr);
+	(i != 3) ? (flag = 0) : 0;
+	return (flag);
 }
 
-char	is_link(char *s)
+char		is_link(char *s)
 {
 	int		i;
 	char	flag;

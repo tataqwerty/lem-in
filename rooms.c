@@ -17,7 +17,6 @@ t_room		*init_room(char **arr, char priority)
 	t_room	*new;
 
 	new = (t_room*)malloc(sizeof(t_room));
-	(!is_int(arr[1]) || !is_int(arr[2])) ? error(ERROR_WITH_ROOM) : 0;
 	new->x = ft_atoi(arr[1]);
 	new->y = ft_atoi(arr[2]);
 	new->level = 0;
@@ -98,24 +97,19 @@ void		add_room_with_command(t_str *s, char **line, char *flag)
 {
 	char	p;
 
-	p = (ft_strequ(*line, "##start")) ? 1 : 2;
+	p = (ft_strequ(*line, "##start")) ? START : END;
 	if (p == START)
 		(*flag & 1) ? error(ERROR_SECOND_START) : 0;
 	else
 		(*flag & 2) ? error(ERROR_SECOND_END) : 0;
 	*flag = *flag | p;
-	ft_list_pushback(&s->line_list, *line);
-	ft_strdel(line);
-	while (get_next_line(0, line) > 0)
+	while (*line)
 	{
-		if (is_comment(*line))
-		{
-			ft_list_pushback(&s->line_list, *line);
-			ft_strdel(line);
-		}
-		else
+		ft_list_pushback(&s->line_list, *line);
+		ft_strdel(line);
+		get_next_line(0, line);
+		if (!is_comment(*line))
 			break ;
 	}
-	(!is_room(*line)) ? error(ERROR_WITH_ROOM) : 0;
-	add_room(&s->room, *line, p);
+	(!is_room(*line)) ? error(ERROR_WITH_ROOM) : add_room(&s->room, *line, p);
 }

@@ -68,7 +68,7 @@ void			clear_rooms(t_room *room)
 	}
 }
 
-unsigned int	length_way(t_way *way)
+int				length_way(t_way *way)
 {
 	int			l;
 
