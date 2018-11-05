@@ -6,36 +6,54 @@
 #    By: tkiselev <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/06/14 15:41:10 by tkiselev          #+#    #+#              #
-#    Updated: 2018/06/15 19:40:35 by tkiselev         ###   ########.fr        #
+#    Updated: 2018/11/05 13:32:50 by tkiselev         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-LEM_IN=lem-in
+CC=gcc
+NAME=lem-in
 LIB=libftprintf.a
+LIB_DIR=libft/
 CC_FLAGS=-Wall -Wextra -Werror
-SRCS=algorithm.c generate_ways.c is_functions.c links.c main.c output.c \
-	 parsing.c rooms.c staff.c
-OBJ=$(SRCS:.c=.o)
-HEADER=lem_in.h
-LIB_DIR=libft
 
-all: $(LIB) $(LEM_IN)
+SRC_DIR=src/
+SRC_NAMES=algorithm.c\
+		   generate_ways.c\
+		   is_functions.c\
+		   links.c\
+		   main.c\
+		   output.c\
+		   parsing.c\
+		   rooms.c\
+		   staff.c
+SRC=$(addprefix $(SRC_DIR),$(SRC_NAMES))
 
-$(LEM_IN): $(OBJ) $(HEADER)
-	gcc $(CC_FLAGS) -o $(LEM_IN) $(OBJ) $(LIB_DIR)/$(LIB)
+OBJ_DIR=obj/
+OBJ=$(addprefix $(OBJ_DIR), $(SRC_NAMES:.c=.o))
 
-$(LIB):
+INC_DIR=inc/
+INC=lem_in.h
+
+all: $(NAME)
+
+$(NAME): $(OBJ) $(LIB_DIR)$(LIB)
+	$(CC) $(OBJ) -o $(NAME) $(LIB_DIR)$(LIB)
+
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c $(INC_DIR)$(INC)
+	@mkdir -p $(OBJ_DIR)
+	$(CC) -c $(CC_FLAGS) $< -o $@ -I $(INC_DIR) -I $(LIB_DIR)
+
+$(LIB_DIR)$(LIB):
 	make -C $(LIB_DIR)
-
-%.o: %.c
-	gcc -c $(CC_FLAGS) $< -o $@
 
 clean:
 	make -C $(LIB_DIR) clean
-	rm -f $(OBJ)
+	rm -rf $(OBJ_DIR)
 
 fclean: clean
 	make -C $(LIB_DIR) fclean
-	rm -f $(LEM_IN)
+	rm -f $(NAME)
 
 re: fclean all
+
+.PHONY: all clean fclean re

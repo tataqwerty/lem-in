@@ -6,14 +6,14 @@
 /*   By: tkiselev <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/06 10:29:18 by tkiselev          #+#    #+#             */
-/*   Updated: 2018/06/14 17:48:03 by tkiselev         ###   ########.fr       */
+/*   Updated: 2018/11/05 13:33:05 by tkiselev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LEM_IN_H
 # define LEM_IN_H
 
-# include "libft/libft.h"
+# include "libft.h"
 # define START 1
 # define END 2
 # define ERROR_INVALID_FILE 3
@@ -106,4 +106,5 @@ char				bfs(t_queue **queue);
 int					length_way(t_way *way);
 void				clear_rooms(t_room *room);
 void				error(char error);
+
 #endif
